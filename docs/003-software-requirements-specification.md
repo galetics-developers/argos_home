@@ -90,7 +90,7 @@ The design of each behavior follows the core capabilities of each form factor ge
 #### 2.2.1. Feature Adaptation Table
 
 | Feature Name | Mobile Phone | Smartwatch | Smart Display |
-|--------------|--------------|------------|---------------|
+| :-- | :-- | :-- | :-- |
 | **Household Registration and Linking** | Complete form to create a household (name only) or join an existing one by scanning a QR code or entering a 6-digit code; selector to switch between multiple households. | Does not take part in setup but shows a brief confirmation notification once linked to the session ("Linked to: The Pérez Household"). | Announces by voice and displays an ambient welcome message once the household is set up, without taking part in the creation flow. |
 | **Invitation and Member Management** | Generates the QR code (per ISO/IEC 18004) or the 6-digit code, checks its validity, removes members, and transfers administration. | Receives a one-time notification when a new member joins the household ("Ana joined the household"), with no ability to generate or revoke invitations. | Announces by voice the arrival of the new member and visually updates the household member list on the ambient panel. |
 | **Pet Profile** | Creates and edits the complete profile (name, breed, type, weight, height, photo), available only to the administrator. | Shows the pet's name and a thumbnail as part of the next pending action card, with no editing option. | Displays the pet's photo or icon in large format as a quick visual identifier within the panel. |
