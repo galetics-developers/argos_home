@@ -1,4 +1,56 @@
 <resources>
     <string name="app_name">argos_home</string>
-    <string name="hello_world">Hello, %1$s!</string>
+
+    <!-- Action buttons of the next activity card -->
+    <string name="button_canceled">CANCELED</string>
+    <string name="button_done">DONE</string>
+    <string name="button_confirmed">CONFIRMED</string>
+    <string name="button_canceled_description">Cancel this activity</string>
+    <string name="button_done_description">Mark this activity as done</string>
+    <string name="button_confirmed_description">Confirm this activity</string>
+
+    <!-- Next activity card -->
+    <string name="pet_avatar_description">Pet</string>
+    <string name="schedule_description">Schedule</string>
+
+    <!-- Up to date state -->
+    <string name="up_to_date_title">Up to date</string>
+    <string name="up_to_date_message">All pets cared for today</string>
+
+    <!-- Syncing state -->
+    <string name="syncing_title">Syncing with phone…</string>
+    <string name="syncing_message">Keep your phone nearby</string>
+    <string name="syncing_description">Syncing</string>
+
+    <!-- Accepted results, always wording and never color alone -->
+    <string name="result_done">Marked as done</string>
+    <string name="result_confirmed">Confirmed</string>
+    <string name="result_canceled">Canceled</string>
+    <string name="result_pending">Still pending</string>
+
+    <!-- Rejected results -->
+    <string name="result_already_done">Already completed by %1$s at %2$s</string>
+    <string name="result_already_done_short">Already completed</string>
+    <string name="result_already_canceled">Already canceled</string>
+    <string name="result_invalid_transition">Not available for this activity</string>
+    <string name="result_unknown_activity">Activity not found on phone</string>
+    <string name="result_rejected">Not applied by phone</string>
+
+    <!-- Send failures -->
+    <string name="failure_phone_unreachable">Phone not reachable. Tap to retry.</string>
+    <string name="failure_send">Could not send. Tap to retry.</string>
+
+    <!-- Module indicator -->
+    <string name="module_indicator_description">Module %1$d of %2$d</string>
+
+    <!-- Actions module -->
+    <string name="actions_title">ACTIONS</string>
+    <string name="actions_section">TASKS OR EVENTS</string>
+    <string name="actions_pending_count">%1$d pending</string>
+    <string name="actions_open_description">Open activity</string>
+    <string name="actions_back_description">Back to the list</string>
+
+    <!-- Nothing pending state -->
+    <string name="nothing_pending_title">Nothing pending</string>
+    <string name="nothing_pending_message">All actions complete</string>
 </resources>
