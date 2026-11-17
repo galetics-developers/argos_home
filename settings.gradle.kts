@@ -23,5 +23,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "argos_home"
-include(":mobile")
-include(":wear")
+include(":apps:mobile")
+include(":apps:wear")

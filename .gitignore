@@ -1,15 +1,89 @@
-*.iml
-.gradle
+# ---------------------------------------------------------------------------
+# Gradle
+# ---------------------------------------------------------------------------
+.gradle/
+build/
+/build
+!gradle/wrapper/gradle-wrapper.jar
+
+# ---------------------------------------------------------------------------
+# Android / Kotlin build outputs
+# ---------------------------------------------------------------------------
+*.apk
+*.aab
+*.ap_
+*.aar
+*.dex
+*.class
+bin/
+gen/
+out/
+release/
+.kotlin/
+*.hprof
+captures/
+/captures
+.externalNativeBuild
+.cxx
+
+# ---------------------------------------------------------------------------
+# Local configuration and signing (never versioned)
+# ---------------------------------------------------------------------------
+local.properties
 /local.properties
+*.jks
+*.keystore
+google-services.json
+
+# ---------------------------------------------------------------------------
+# IDE (Android Studio / IntelliJ)
+# ---------------------------------------------------------------------------
+*.iml
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/.idea/deploymentTargetSelector.xml
+/.idea/deploymentTargetDropDown.xml
+
+# ---------------------------------------------------------------------------
+# OS
+# ---------------------------------------------------------------------------
 .DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
-local.properties
+
+# ---------------------------------------------------------------------------
+# Secrets
+# ---------------------------------------------------------------------------
+secrets/
+credentials/
+*.pem
+*.key
+.env
+.env.*
+
+# ---------------------------------------------------------------------------
+# Local tooling and working files (never versioned, never part of delivery)
+# ---------------------------------------------------------------------------
+.claude/
+.agents/
+.codex/
+.cursor/
+.gemini/
+.vscode/
+.antigravity/
+.opencode/
+.codegraph/
+codegraph.json
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+MEMORY.md
+opencode.jsonc
+.mcp.json
+skills-lock.json
+skill.lock
+skills.lock
+docs/constitution.md
+docs/specs/
