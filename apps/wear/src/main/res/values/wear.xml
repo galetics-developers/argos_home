@@ -1,0 +1,13 @@
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@array/android_wear_capabilities">
+
+    <!--
+        Capability advertised by the watch app so the phone app can discover its node.
+        This literal value must stay identical to the CAPABILITY_WEAR_APP constant in the
+        shared Kotlin source; a mismatch breaks node discovery silently.
+    -->
+    <string-array name="android_wear_capabilities">
+        <item>argos_home_wear_app</item>
+    </string-array>
+
+</resources>
