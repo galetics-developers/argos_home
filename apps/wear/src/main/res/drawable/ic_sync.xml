@@ -1,0 +1,16 @@
+<!--
+    Circular arrow: synchronization with the phone. Drawn by hand so the watch app needs no
+    icon library.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,4V1L7.5,5.5 12,10V7a5,5 0 0 1 4.33,7.5l1.46,1.46A7,7 0 0 0 12,4Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,17a5,5 0 0 1 -4.33,-7.5L6.21,8.04A7,7 0 0 0 12,20v3l4.5,-4.5L12,14Z" />
+</vector>

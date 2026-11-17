@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Platform theme used while the window is created. It paints the brand color so the
+    launch window matches the branded top bar instead of flashing a default background.
+-->
 <resources>
 
-    <style name="Theme.Argos_home" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.Argos_home" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/brand_primary</item>
+        <item name="android:statusBarColor">@color/brand_primary</item>
+        <item name="android:colorPrimary">@color/brand_primary</item>
+        <item name="android:colorPrimaryDark">@color/brand_primary_dark</item>
+        <item name="android:colorAccent">@color/brand_secondary</item>
+    </style>
 </resources>

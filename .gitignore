@@ -38,15 +38,9 @@ google-services.json
 # ---------------------------------------------------------------------------
 # IDE (Android Studio / IntelliJ)
 # ---------------------------------------------------------------------------
+# The whole .idea folder is local tooling: it holds machine-specific config (JDK name, devices) and is never delivered.
 *.iml
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-/.idea/deploymentTargetSelector.xml
-/.idea/deploymentTargetDropDown.xml
+/.idea/
 
 # ---------------------------------------------------------------------------
 # OS

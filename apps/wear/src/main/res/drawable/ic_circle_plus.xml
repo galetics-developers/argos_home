@@ -1,0 +1,17 @@
+<!--
+    Circle with a plus: the confirm action of the watch module. Drawn by hand so the watch app
+    needs no icon library, and tinted at the call site with the info color of the palette.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M12,2a10,10 0 1 0 0,20 10,10 0 0 0 0,-20Zm0,2a8,8 0 1 1 0,16 8,8 0 0 1 0,-16Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M11,7h2v4h4v2h-4v4h-2v-4H7v-2h4Z" />
+</vector>
