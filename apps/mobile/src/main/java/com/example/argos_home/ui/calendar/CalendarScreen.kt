@@ -30,7 +30,11 @@ enum class CalendarView(@StringRes val labelRes: Int) {
 // Reads the repository snapshot list, so a transition applied here or arriving from the watch repaints by itself.
 /** Phone calendar host: owns the view, selected day, pet filter and the create-activity modal. */
 @Composable
-fun CalendarScreen(modifier: Modifier = Modifier) {
+fun CalendarScreen(
+    onOpenNotifications: () -> Unit,
+    onSelectTab: (Tab) -> Unit,
+    modifier: Modifier = Modifier
+) {
     var view by rememberSaveable { mutableStateOf(CalendarView.DAY) }
     var selectedDate by rememberSaveable { mutableStateOf(LocalDate.now().toEpochDay()) }
     var petFilter by rememberSaveable { mutableStateOf<String?>(null) }
@@ -50,7 +54,7 @@ fun CalendarScreen(modifier: Modifier = Modifier) {
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        bottomBar = { BottomNavBar() },
+        bottomBar = { BottomNavBar(selected = Tab.CALENDAR, onSelect = onSelectTab) },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Column(
@@ -58,7 +62,7 @@ fun CalendarScreen(modifier: Modifier = Modifier) {
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            CalendarTopBar()
+            CalendarTopBar(onBell = onOpenNotifications)
             ViewSelector(selected = view, onSelect = { view = it })
             PetFilterBar(pets = petNames, selected = petFilter, onSelect = { petFilter = it })
 

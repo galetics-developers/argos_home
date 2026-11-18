@@ -38,7 +38,7 @@ import com.example.argos_home.ui.theme.White50
 
 /** Branded top bar shared by every calendar view. */
 @Composable
-fun CalendarTopBar(modifier: Modifier = Modifier) {
+fun CalendarTopBar(onBell: () -> Unit, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -52,14 +52,20 @@ fun CalendarTopBar(modifier: Modifier = Modifier) {
             color = White50
         )
         Spacer(modifier = Modifier.weight(1f))
-        NotificationBell()
+        NotificationBell(onBell = onBell)
     }
 }
 
-/** Bell with its unread badge. Notifications are a later module, so the bell is not actionable. */
+/** Bell with its unread badge; a tap opens the notifications screen. */
 @Composable
-private fun NotificationBell(modifier: Modifier = Modifier) {
-    Box(modifier = modifier.size(32.dp), contentAlignment = Alignment.Center) {
+private fun NotificationBell(onBell: () -> Unit, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .size(32.dp)
+            .clip(CircleShape)
+            .clickable(onClick = onBell),
+        contentAlignment = Alignment.Center
+    ) {
         Icon(
             painter = painterResource(R.drawable.ic_bell),
             contentDescription = stringResource(R.string.notifications_description),
