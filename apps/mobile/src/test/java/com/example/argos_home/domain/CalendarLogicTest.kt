@@ -53,21 +53,26 @@ class CalendarLogicTest {
     }
 
     @Test
-    fun seed_isConsistentAndAnchoredToTheCurrentMonth() {
+    fun seed_isConsistentAndRelatedPerPet() {
         val today = LocalDate.now()
-        assertEquals(8, SeedData.activities.size)
-        assertEquals(6, SeedData.pets.size)
+        assertEquals(14, SeedData.pets.size)
         assertEquals(5, SeedData.members.size)
         assertEquals(30, Household.MAX_PETS)
         assertEquals(21, Household.MAX_MEMBERS)
 
-        // Ids are unique and every activity starts pending, so the demo begins with everything still to resolve.
-        assertEquals(SeedData.activities.size, SeedData.activities.map { it.id }.toSet().size)
-        assertTrue(SeedData.activities.all { it.state == ActivityState.PENDING })
+        // Each pet owns exactly ten activities: five tasks and five events, related by pet and not by home.
+        assertEquals(SeedData.pets.size * 10, SeedData.activities.size)
+        SeedData.pets.forEach { pet ->
+            val own = SeedData.activities.filter { it.petName == pet.name }
+            assertEquals(10, own.size)
+            assertEquals(5, own.count { it.type == ItemType.TASK })
+            assertEquals(5, own.count { it.type == ItemType.EVENT })
+        }
 
-        // Some activities fall today (for the Day/Week views and the watch "nearest"); all land in the current month.
+        // Ids are unique, nothing is scheduled in the past, and some activities fall today.
+        assertEquals(SeedData.activities.size, SeedData.activities.map { it.id }.toSet().size)
+        assertTrue(SeedData.activities.none { it.date.isBefore(today) })
         assertTrue(SeedData.activities.any { it.date == today })
-        assertTrue(SeedData.activities.all { it.date.year == today.year && it.date.month == today.month })
 
         assertEquals(PetType.CAT, SeedData.petTypeOf("Luna"))
         assertEquals(PetType.OTHER, SeedData.petTypeOf("Nobody"))
