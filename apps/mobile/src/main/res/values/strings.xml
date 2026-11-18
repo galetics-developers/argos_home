@@ -86,4 +86,95 @@
     <string name="nav_calendar">Calendar</string>
     <string name="nav_household">Household</string>
     <string name="nav_profile">Profile</string>
+
+    <!-- Pets list -->
+    <string name="pets_title">Pets</string>
+    <string name="pets_subtitle">Tap a pet to see their care and health history.</string>
+    <string name="pets_count">%1$d/%2$d</string>
+    <string name="add_pet">Add pet</string>
+    <string name="pet_progress">%1$d/%2$d today</string>
+    <string name="pet_limit_reached">Household is full (30 pets).</string>
+    <string name="open_pet">Open pet</string>
+
+    <!-- Pet detail -->
+    <string name="pet_profile_title">Pet profile</string>
+    <string name="health_empty">No health records yet.</string>
+    <string name="back">Back</string>
+    <string name="edit_pet">Edit pet</string>
+    <string name="pet_photo">Pet photo</string>
+    <string name="label_breed">Breed</string>
+    <string name="label_age">Age</string>
+    <string name="label_weight">Weight</string>
+    <string name="label_height">Height</string>
+    <string name="age_years">%1$d years</string>
+    <string name="tab_care_schedule">Care schedule</string>
+    <string name="tab_health_records">Health records</string>
+    <string name="delete_pet">Delete pet</string>
+    <string name="confirmed_by">Confirmed by %1$s</string>
+
+    <!-- Delete pet dialog -->
+    <string name="delete_pet_title">Delete %1$s?</string>
+    <string name="delete_pet_message">This removes the pet and all its care and health records. This cannot be undone.</string>
+    <string name="action_delete">Delete</string>
+
+    <!-- Health records -->
+    <string name="add_health_record">Add health record</string>
+    <string name="record_assigned_to">Assigned to %1$s</string>
+    <string name="med_status_pending">Pending</string>
+    <string name="med_status_completed">Completed</string>
+    <string name="med_status_canceled">Canceled</string>
+    <string name="med_type_vaccine">Vaccine</string>
+    <string name="med_type_medication">Medication</string>
+    <string name="med_type_procedure">Procedure</string>
+
+    <!-- Medical record form -->
+    <string name="new_record_title">Add record</string>
+    <string name="field_record_type">Record type</string>
+    <string name="field_record_title">Title</string>
+    <string name="hint_record_title">Enter the record title (e.g., Rabies booster)</string>
+    <string name="field_period">Period</string>
+    <string name="hint_record_period">Enter the period (e.g., 7-day course or 10:30 - 14:00)</string>
+    <string name="field_status">Status</string>
+    <string name="field_clinic">Assigned to / clinic</string>
+    <string name="hint_clinic">Member or clinic (e.g., Argos Vet Clinic)</string>
+
+    <!-- Pet form -->
+    <string name="edit_pet_title">Edit pet</string>
+    <string name="add_pet_title">Add pet</string>
+    <string name="field_full_name">Full name</string>
+    <string name="hint_full_name">Enter the pet\'s full name (e.g., Luna Rose)</string>
+    <string name="field_type">Type</string>
+    <string name="field_breed">Breed / species</string>
+    <string name="hint_breed">Enter the breed or species (e.g., Labrador)</string>
+    <string name="field_age">Age</string>
+    <string name="hint_age">Enter the age in years (e.g., 3)</string>
+    <string name="field_weight">Weight</string>
+    <string name="hint_weight">Enter the weight (e.g., 12.5)</string>
+    <string name="field_height">Height</string>
+    <string name="hint_height">Enter the height (e.g., 45)</string>
+    <string name="field_unit">Unit</string>
+    <string name="pet_type_dog">Dog</string>
+    <string name="pet_type_cat">Cat</string>
+    <string name="pet_type_bird">Bird</string>
+    <string name="pet_type_rabbit">Rabbit</string>
+    <string name="pet_type_snake">Snake</string>
+    <string name="pet_type_rodent">Rodent</string>
+    <string name="pet_type_fish">Fish</string>
+    <string name="pet_type_arachnid">Arachnid</string>
+    <string name="pet_type_reptile">Reptile</string>
+    <string name="pet_type_poultry">Poultry</string>
+    <string name="pet_type_amphibian">Amphibian</string>
+    <string name="pet_type_other">Other</string>
+
+    <!-- Notifications -->
+    <string name="notifications_title">Notifications</string>
+    <string name="mark_all_read">Mark all read</string>
+    <string name="filter_by_household">Filter by household</string>
+    <string name="filter_all_households">All households</string>
+    <string name="section_today">TODAY</string>
+    <string name="section_yesterday">YESTERDAY</string>
+    <string name="time_now">now</string>
+    <string name="time_minutes_ago">%1$dm ago</string>
+    <string name="time_hours_ago">%1$dh ago</string>
+    <string name="time_days_ago">%1$dd ago</string>
 </resources>

@@ -6,12 +6,17 @@ data class HouseholdMember(
     val name: String
 )
 
-/** A pet of the household; its type drives the avatar icon shown on both devices. */
+/** A pet of the household; its type drives the avatar icon, the rest fills the profile shown on the phone. */
 data class Pet(
     val id: String,
     val name: String,
     val type: PetType,
-    val breed: String = ""
+    val breed: String = "",
+    val ageYears: Int = 0,
+    val weight: Double = 0.0,
+    val weightUnit: WeightUnit = WeightUnit.KG,
+    val height: Double = 0.0,
+    val heightUnit: HeightUnit = HeightUnit.CM
 )
 
 /** The single home that owns every member, pet and activity; one household per install in this release. */

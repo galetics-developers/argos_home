@@ -8,7 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.lifecycleScope
 import com.example.argos_home.data.ActivityRepository
 import com.example.argos_home.protocol.MessageCodec
-import com.example.argos_home.ui.calendar.CalendarScreen
+import com.example.argos_home.ui.AppRoot
 import com.example.argos_home.ui.theme.Argos_homeTheme
 import com.example.argos_home.wearable.ActivityResultSender
 import com.google.android.gms.wearable.MessageClient
@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity(), MessageClient.OnMessageReceivedListene
         resultSender = ActivityResultSender(messageClient)
         setContent {
             Argos_homeTheme {
-                CalendarScreen()
+                AppRoot()
             }
         }
     }

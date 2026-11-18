@@ -8,19 +8,21 @@ import androidx.compose.ui.Modifier
 import com.example.argos_home.domain.ActivityState
 import com.example.argos_home.presentation.actions.ActionsScreen
 import com.example.argos_home.presentation.home.HomeScreen
+import com.example.argos_home.presentation.notifications.NotificationsScreen
 
-// Two swipeable modules today, Home and Actions; the third dot of the indicator belongs to a later release.
-/** Root of the watch app: a horizontal pager over the Home and Actions modules. */
+// Three swipeable modules: Home, Actions and Notifications, matching the three dots of the indicator.
+/** Root of the watch app: a horizontal pager over the Home, Actions and Notifications modules. */
 @Composable
 fun WearApp(
     onRequestTransition: (String, ActivityState) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val pagerState = rememberPagerState(pageCount = { 2 })
+    val pagerState = rememberPagerState(pageCount = { 3 })
     HorizontalPager(state = pagerState, modifier = modifier.fillMaxSize()) { page ->
         when (page) {
             0 -> HomeScreen(onRequestTransition = onRequestTransition)
-            else -> ActionsScreen(onRequestTransition = onRequestTransition)
+            1 -> ActionsScreen(onRequestTransition = onRequestTransition)
+            else -> NotificationsScreen()
         }
     }
 }
