@@ -53,4 +53,9 @@
     <!-- Nothing pending state -->
     <string name="nothing_pending_title">Nothing pending</string>
     <string name="nothing_pending_message">All actions complete</string>
+
+    <!-- Notifications module -->
+    <string name="notifications_title">NOTIFICATIONS</string>
+    <string name="notifications_open_description">Open notification</string>
+    <string name="notifications_back_description">Back to the list</string>
 </resources>

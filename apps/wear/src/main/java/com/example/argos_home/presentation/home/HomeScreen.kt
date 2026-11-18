@@ -307,7 +307,7 @@ private fun NextActivityEventPreview() {
     Argos_homeTheme {
         WatchFrame { scale ->
             NextActivityContent(
-                activity = SeedData.activities.first { it.id == "act-02" },
+                activity = SeedData.activities.first { it.endTime != null },
                 resultMessage = null,
                 sendBlocked = false,
                 scale = scale,
