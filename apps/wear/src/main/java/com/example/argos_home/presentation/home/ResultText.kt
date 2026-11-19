@@ -10,7 +10,6 @@ import com.example.argos_home.presentation.theme.Error1
 import com.example.argos_home.presentation.theme.Info1
 import com.example.argos_home.presentation.theme.Success1
 import com.example.argos_home.presentation.theme.Warning1
-import com.example.argos_home.presentation.wearable.SendFailure
 import com.example.argos_home.protocol.ActivityResult
 import com.example.argos_home.protocol.RejectionReason
 import java.text.SimpleDateFormat
@@ -32,17 +31,6 @@ fun resultMessageOf(result: ActivityResult): ResultMessage =
     } else {
         rejectedMessage(result)
     }
-
-/** Wording and color of a request that never reached the phone. */
-@Composable
-fun failureMessageOf(failure: SendFailure): ResultMessage = when (failure) {
-    // Both reachability failures read alike: from the wrist, no node answering and a node dropping are one problem.
-    SendFailure.NO_PHONE_NODE,
-    SendFailure.PHONE_NOT_CONNECTED ->
-        ResultMessage(stringResource(R.string.failure_phone_unreachable), Warning1)
-
-    SendFailure.SEND_FAILED -> ResultMessage(stringResource(R.string.failure_send), Error1)
-}
 
 @Composable
 private fun acceptedMessage(state: ActivityState): ResultMessage = when (state) {
