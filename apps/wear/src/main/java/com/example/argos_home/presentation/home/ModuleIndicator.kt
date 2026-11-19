@@ -1,6 +1,7 @@
 package com.example.argos_home.presentation.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -12,20 +13,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.MaterialTheme
 import com.example.argos_home.R
 
-// All three dots are always drawn: the other two modules arrive later, and hiding their dots would alter the layout.
-/** The three dots of the watch home, with the dot of the current module widened. */
+// All three dots are always drawn, fixed at the foot of the pager; the active one is widened.
+/** The three module dots; when [onDotClick] is set, tapping a dot jumps to that module. */
 @Composable
 fun ModuleIndicator(
     activeIndex: Int,
     scale: Float,
     modifier: Modifier = Modifier,
-    moduleCount: Int = MODULE_COUNT
+    moduleCount: Int = MODULE_COUNT,
+    onDotClick: ((Int) -> Unit)? = null
 ) {
     val description = stringResource(
         R.string.module_indicator_description,
@@ -49,6 +52,13 @@ fun ModuleIndicator(
                             MaterialTheme.colorScheme.onSurface
                         } else {
                             MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                    )
+                    .then(
+                        if (onDotClick != null) {
+                            Modifier.clickable(role = Role.Button) { onDotClick(index) }
+                        } else {
+                            Modifier
                         }
                     )
             )
