@@ -25,9 +25,13 @@ data class TransitionRequest(
 /** Watch home state; [applyResult] is the only writer, so no transition is ever applied without a phone result. */
 object HomeStore {
 
-    // Sorted by real date and time so the walk-through runs in chronological order and "nearest" means soonest.
+    // The watch is a personal client: only activities assigned to the local member are shown, sorted by date and time.
     private val mutableActivities = mutableStateListOf<ScheduledActivity>().apply {
-        addAll(SeedData.activities.sortedWith(compareBy({ it.date }, { it.startTime })))
+        addAll(
+            SeedData.activities
+                .filter { it.assignedTo == SeedData.localMember.name }
+                .sortedWith(compareBy({ it.date }, { it.startTime }))
+        )
     }
 
     /** The activities of the home, observable by the composition. */
