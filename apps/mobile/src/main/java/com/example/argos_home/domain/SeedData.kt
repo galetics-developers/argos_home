@@ -81,7 +81,7 @@ object SeedData {
         val result = mutableListOf<ScheduledActivity>()
         val doneToday = petIndex % 3
         for (i in 0 until 5) {
-            val member = members[(petIndex + i) % members.size].name
+            val member = if (i == 0) localMember.name else members[(petIndex + i) % members.size].name
             val isDone = taskDayOffsets[i] == 0L && i < doneToday
             result += ScheduledActivity(
                 id = "act-${pet.id}-t${i + 1}",
@@ -102,7 +102,7 @@ object SeedData {
             )
         }
         for (i in 0 until 5) {
-            val member = members[(petIndex + i) % members.size].name
+            val member = if (i == 0) localMember.name else members[(petIndex + i) % members.size].name
             val start = LocalTime.of(9 + i, 0)
             result += ScheduledActivity(
                 id = "act-${pet.id}-e${i + 1}",

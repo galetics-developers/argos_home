@@ -1,10 +1,5 @@
 package com.example.argos_home.presentation.home
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -14,22 +9,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import androidx.wear.tooling.preview.devices.WearDevices
@@ -42,7 +32,7 @@ import com.example.argos_home.presentation.theme.Argos_homeTheme
 import kotlinx.coroutines.delay
 
 // The only composable that knows [HomeStore]: everything below takes plain data and lambdas, and stays previewable.
-/** The watch home and its three states: an activity to decide, the day resolved, and a request on its way. */
+/** The watch home and its states: an activity to decide, the day resolved, a request on its way, or a failure. */
 @Composable
 fun HomeScreen(
     onRequestTransition: (String, ActivityState) -> Unit,
@@ -52,8 +42,7 @@ fun HomeScreen(
     val result = HomeStore.lastResult
     val failure = HomeStore.lastError
 
-    // Only an accepted result advances after 1.5 s: a refusal or a failure never does, so ALREADY_DONE stays visible.
-    // Keyed on the answer, so it runs once per answer and is cancelled if the screen leaves the composition.
+    // Only an accepted result advances after 1.5 s: a refusal never does, so ALREADY_DONE stays visible.
     LaunchedEffect(result) {
         if (result != null && result.accepted) {
             delay(1_500L)
@@ -62,29 +51,27 @@ fun HomeScreen(
         }
     }
 
-    val resultMessage = when {
-        failure != null -> failureMessageOf(failure)
-        result != null -> resultMessageOf(result)
-        else -> null
-    }
-
-    val lastRequest = HomeStore.lastRequest
-
-    // A failure or refusal stays on the card instead of a full-screen trap, so the user keeps navigating and can retry.
-    val onOutcomeTap: (() -> Unit)? = when {
-        failure != null && lastRequest != null ->
-            { { onRequestTransition(lastRequest.activityId, lastRequest.targetState) } }
-
-        result?.accepted == false -> { { HomeStore.dismissOutcome() } }
-        else -> null
-    }
+    // A phone answer is shown on the card; a send failure takes over with the full error screen instead.
+    val resultMessage = if (result != null) resultMessageOf(result) else null
+    val onOutcomeTap: (() -> Unit)? =
+        if (result?.accepted == false) { { HomeStore.dismissOutcome() } } else null
 
     WatchFrame(modifier = modifier) { scale ->
         when {
-            // Only an in-flight request takes over the screen; it clears the moment the phone answers or sending fails.
-            HomeStore.awaitingResult -> SyncingContent(scale = scale, message = null, onRetry = null)
+            // An in-flight request takes over the screen; it clears the moment the phone answers or sending fails.
+            HomeStore.awaitingResult -> SyncingState(scale = scale)
 
-            activity == null -> UpToDateContent(scale = scale)
+            failure != null -> ConnectionErrorState(
+                scale = scale,
+                message = stringResource(R.string.error_connection_message),
+                onBack = { HomeStore.dismissOutcome() }
+            )
+
+            activity == null -> GreenCheckState(
+                scale = scale,
+                title = stringResource(R.string.up_to_date_title),
+                message = stringResource(R.string.up_to_date_message)
+            )
 
             else -> NextActivityContent(
                 activity = activity,
@@ -99,7 +86,6 @@ fun HomeScreen(
 }
 
 // The design frame is taller than a round screen, so scale comes from the real width and the column scrolls.
-// Scaling by height would shrink the buttons below a usable size, and not scaling would push them off screen.
 /** Lays out one watch screen over the proportions of the approved design. */
 @Composable
 private fun WatchFrame(
@@ -123,7 +109,7 @@ private fun WatchFrame(
     }
 }
 
-/** The "next activity" state: the card, the outcome in words and the three actions. */
+/** The "next activity" state: the card, the outcome in words and the state-dependent actions. */
 @Composable
 private fun NextActivityContent(
     activity: ScheduledActivity,
@@ -150,95 +136,7 @@ private fun NextActivityContent(
         onAction = onAction,
         scale = scale
     )
-
-    BottomIndicator(scale = scale)
-}
-
-/** The "up to date" state, shown once no activity of the day is waiting for a decision. */
-@Composable
-private fun UpToDateContent(scale: Float) {
-    Spacer(modifier = Modifier.height((EMPTY_STATE_TOP * scale).dp))
-    Icon(
-        painter = painterResource(R.drawable.ic_check),
-        contentDescription = null,
-        tint = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.size((STATE_ICON_SIZE * scale).dp)
-    )
-    Spacer(modifier = Modifier.height((STATE_TEXT_GAP * scale).dp))
-    Text(
-        text = stringResource(R.string.up_to_date_title),
-        style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onSurface,
-        textAlign = TextAlign.Center,
-        modifier = Modifier.fillMaxWidth()
-    )
-    Text(
-        text = stringResource(R.string.up_to_date_message),
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        textAlign = TextAlign.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = (STATE_TEXT_PADDING * scale).dp)
-    )
-    BottomIndicator(scale = scale)
-}
-
-/** The syncing state; a [message] means it reports a failure, and [onRetry] turns the whole screen into a retry. */
-@Composable
-private fun SyncingContent(
-    scale: Float,
-    message: ResultMessage?,
-    onRetry: (() -> Unit)?
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(
-                if (onRetry != null) {
-                    Modifier.clickable(role = Role.Button, onClick = onRetry)
-                } else {
-                    Modifier
-                }
-            ),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.height((EMPTY_STATE_TOP * scale).dp))
-        // The sync glyph spins so a wait reads as progress, not a frozen dark screen.
-        val spin = rememberInfiniteTransition(label = "sync")
-        val angle by spin.animateFloat(
-            initialValue = 0f,
-            targetValue = 360f,
-            animationSpec = infiniteRepeatable(tween(durationMillis = 1200, easing = LinearEasing)),
-            label = "sync-angle"
-        )
-        Icon(
-            painter = painterResource(R.drawable.ic_sync),
-            contentDescription = stringResource(R.string.syncing_description),
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier
-                .size((STATE_ICON_SIZE * scale).dp)
-                .graphicsLayer { rotationZ = angle }
-        )
-        Spacer(modifier = Modifier.height((STATE_TEXT_GAP * scale).dp))
-        Text(
-            text = stringResource(R.string.syncing_title),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Text(
-            text = message?.text ?: stringResource(R.string.syncing_message),
-            style = MaterialTheme.typography.bodySmall,
-            color = message?.color ?: MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = (STATE_TEXT_PADDING * scale).dp)
-        )
-        BottomIndicator(scale = scale)
-    }
+    Spacer(modifier = Modifier.height((BOTTOM_GAP * scale).dp))
 }
 
 /** Outcome of the last request in words and color; [onDismiss] makes it tappable, the way out of a refused card. */
@@ -262,28 +160,16 @@ private fun OutcomeText(message: ResultMessage?, scale: Float, onDismiss: (() ->
                     Modifier
                 }
             )
-            .padding(horizontal = (STATE_TEXT_PADDING * scale).dp)
+            .padding(horizontal = (OUTCOME_PADDING * scale).dp)
     )
-}
-
-/** The module dots, drawn at the foot of every state of the screen. */
-@Composable
-private fun BottomIndicator(scale: Float) {
-    Spacer(modifier = Modifier.height((INDICATOR_GAP * scale).dp))
-    ModuleIndicator(activeIndex = 0, scale = scale)
-    Spacer(modifier = Modifier.height((INDICATOR_BOTTOM * scale).dp))
 }
 
 // Design units of the watch home, kept as written in the approved layout.
 private const val DESIGN_FRAME_WIDTH = 224f
 private const val ACTION_ROW_GAP = 12f
-private const val INDICATOR_GAP = 12f
-private const val INDICATOR_BOTTOM = 16f
 private const val OUTCOME_GAP = 6f
-private const val EMPTY_STATE_TOP = 40f
-private const val STATE_ICON_SIZE = 32f
-private const val STATE_TEXT_GAP = 10f
-private const val STATE_TEXT_PADDING = 16f
+private const val OUTCOME_PADDING = 16f
+private const val BOTTOM_GAP = 16f
 
 @Preview(device = WearDevices.SMALL_ROUND, showBackground = true)
 @Composable
@@ -321,7 +207,13 @@ private fun NextActivityEventPreview() {
 @Composable
 private fun UpToDatePreview() {
     Argos_homeTheme {
-        WatchFrame { scale -> UpToDateContent(scale = scale) }
+        WatchFrame { scale ->
+            GreenCheckState(
+                scale = scale,
+                title = stringResource(R.string.up_to_date_title),
+                message = stringResource(R.string.up_to_date_message)
+            )
+        }
     }
 }
 
@@ -329,8 +221,20 @@ private fun UpToDatePreview() {
 @Composable
 private fun SyncingPreview() {
     Argos_homeTheme {
+        WatchFrame { scale -> SyncingState(scale = scale) }
+    }
+}
+
+@Preview(device = WearDevices.SMALL_ROUND, showBackground = true)
+@Composable
+private fun ConnectionErrorPreview() {
+    Argos_homeTheme {
         WatchFrame { scale ->
-            SyncingContent(scale = scale, message = null, onRetry = null)
+            ConnectionErrorState(
+                scale = scale,
+                message = stringResource(R.string.error_connection_message),
+                onBack = {}
+            )
         }
     }
 }

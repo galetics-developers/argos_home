@@ -18,7 +18,7 @@ class CalendarLogicTest {
         val confirm = ActivityState.CONFIRMED
 
         assertEquals(listOf(cancel, done, confirm), TransitionRules.allowedTargets(ActivityState.PENDING, ItemType.EVENT))
-        assertEquals(listOf(cancel, done), TransitionRules.allowedTargets(ActivityState.PENDING, ItemType.TASK))
+        assertEquals(listOf(cancel, done, confirm), TransitionRules.allowedTargets(ActivityState.PENDING, ItemType.TASK))
         assertEquals(listOf(cancel, done), TransitionRules.allowedTargets(ActivityState.CONFIRMED, ItemType.EVENT))
         assertEquals(listOf(cancel, done), TransitionRules.allowedTargets(ActivityState.CONFIRMED, ItemType.TASK))
         assertTrue(TransitionRules.allowedTargets(ActivityState.DONE, ItemType.EVENT).isEmpty())

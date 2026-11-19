@@ -31,6 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.items
@@ -42,11 +43,10 @@ import com.example.argos_home.R
 import com.example.argos_home.domain.Notification
 import com.example.argos_home.domain.NotificationSeed
 import com.example.argos_home.domain.NotificationType
-import com.example.argos_home.presentation.home.ModuleIndicator
+import com.example.argos_home.presentation.home.GreenCheckState
 import com.example.argos_home.presentation.theme.Primary500
 import com.example.argos_home.presentation.theme.Quaternary900
 import com.example.argos_home.presentation.theme.Secondary500
-import com.example.argos_home.presentation.theme.Success2
 import com.example.argos_home.presentation.theme.Tertiary600
 import com.example.argos_home.presentation.theme.White50
 
@@ -63,7 +63,13 @@ fun NotificationsScreen(modifier: Modifier = Modifier) {
             NotificationDetail(selected, scale, onBack = { selectedId = null })
         }
 
-        items.isEmpty() -> CenteredFrame(modifier) { scale -> NothingPending(scale) }
+        items.isEmpty() -> CenteredFrame(modifier) { scale ->
+            GreenCheckState(
+                scale = scale,
+                title = stringResource(R.string.nothing_pending_title),
+                message = stringResource(R.string.nothing_pending_message)
+            )
+        }
 
         else -> NotificationList(items = items, onOpen = { selectedId = it }, modifier = modifier)
     }
@@ -94,7 +100,6 @@ private fun NotificationList(
         items(items = items, key = { it.id }) { notification ->
             NotificationRow(notification = notification, onOpen = onOpen)
         }
-        item { ModuleIndicator(activeIndex = 2, scale = 1f) }
     }
 }
 
@@ -117,13 +122,15 @@ private fun NotificationRow(notification: Notification, onOpen: (String) -> Unit
                 text = notification.title,
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             Text(
                 text = notification.message,
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
         Spacer(modifier = Modifier.size(6.dp))
@@ -136,7 +143,7 @@ private fun NotificationRow(notification: Notification, onOpen: (String) -> Unit
     }
 }
 
-/** The focused detail: the icon, title, message and extra line, all centered on the round screen. */
+/** The focused detail: the icon, title, message, time and relative date, all centered on the round screen. */
 @Composable
 private fun NotificationDetail(notification: Notification, scale: Float, onBack: () -> Unit) {
     Spacer(modifier = Modifier.height((20f * scale).dp))
@@ -156,15 +163,23 @@ private fun NotificationDetail(notification: Notification, scale: Float, onBack:
         textAlign = TextAlign.Center,
         modifier = Modifier.fillMaxWidth().padding(horizontal = (12f * scale).dp)
     )
-    val footer = if (notification.detail.isNotBlank()) notification.detail else notification.time
     Spacer(modifier = Modifier.height((6f * scale).dp))
     Text(
-        text = footer,
+        text = notification.time,
         style = MaterialTheme.typography.numeralSmall,
         color = MaterialTheme.colorScheme.onSurface,
         textAlign = TextAlign.Center,
         modifier = Modifier.fillMaxWidth()
     )
+    if (notification.date.isNotBlank()) {
+        Text(
+            text = notification.date,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
     Spacer(modifier = Modifier.height((10f * scale).dp))
     Text(
         text = stringResource(R.string.notifications_back_description),
@@ -176,45 +191,6 @@ private fun NotificationDetail(notification: Notification, scale: Float, onBack:
             .clickable(role = Role.Button, onClick = onBack)
             .padding(vertical = (4f * scale).dp)
     )
-    ModuleIndicator(activeIndex = 2, scale = scale)
-    Spacer(modifier = Modifier.height((16f * scale).dp))
-}
-
-/** The empty state: a green check tells the household that nothing is waiting. */
-@Composable
-private fun NothingPending(scale: Float) {
-    Spacer(modifier = Modifier.height((40f * scale).dp))
-    Box(
-        modifier = Modifier
-            .size((56f * scale).dp)
-            .clip(CircleShape)
-            .background(Success2),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            painter = painterResource(R.drawable.ic_check),
-            contentDescription = null,
-            tint = White50,
-            modifier = Modifier.size((28f * scale).dp)
-        )
-    }
-    Spacer(modifier = Modifier.height((10f * scale).dp))
-    Text(
-        text = stringResource(R.string.nothing_pending_title),
-        style = MaterialTheme.typography.titleMedium,
-        color = Success2,
-        textAlign = TextAlign.Center,
-        modifier = Modifier.fillMaxWidth()
-    )
-    Text(
-        text = stringResource(R.string.nothing_pending_message),
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        textAlign = TextAlign.Center,
-        modifier = Modifier.fillMaxWidth().padding(horizontal = (16f * scale).dp)
-    )
-    Spacer(modifier = Modifier.height((12f * scale).dp))
-    ModuleIndicator(activeIndex = 2, scale = scale)
     Spacer(modifier = Modifier.height((16f * scale).dp))
 }
 
@@ -267,12 +243,11 @@ private fun iconOf(type: NotificationType): Int = when (type) {
     NotificationType.ADMIN_TRANSFER -> R.drawable.ic_shield
 }
 
+// One of the four palette colors per type, assigned like the pet-type colors so a type reads by color too.
 private fun colorOf(type: NotificationType): Color = when (type) {
-    NotificationType.REMINDER -> Primary500
-    NotificationType.MEMBER_JOINED -> Primary500
+    NotificationType.MEMBER_JOINED, NotificationType.MEMBERSHIP -> Primary500
+    NotificationType.REMINDER, NotificationType.VACCINE_DUE -> Secondary500
     NotificationType.INVITE -> Tertiary600
-    NotificationType.VACCINE_DUE -> Secondary500
-    NotificationType.MEMBERSHIP -> Tertiary600
     NotificationType.ADMIN_TRANSFER -> Quaternary900
 }
 

@@ -20,12 +20,12 @@ object TransitionRules {
         ActivityState.PENDING, ActivityState.CONFIRMED -> false
     }
 
-    /** Targets each kind offers: a TASK never accepts CONFIRMED, an EVENT accepts all three. */
+    /** Targets each kind offers; tasks and events share one set: CONFIRMED, DONE and CANCELED. */
     fun isAllowedForType(type: ItemType, target: ActivityState): Boolean = when (type) {
-        ItemType.TASK -> target == ActivityState.DONE || target == ActivityState.CANCELED
-        ItemType.EVENT -> target == ActivityState.CONFIRMED ||
-            target == ActivityState.DONE ||
-            target == ActivityState.CANCELED
+        ItemType.TASK, ItemType.EVENT ->
+            target == ActivityState.CONFIRMED ||
+                target == ActivityState.DONE ||
+                target == ActivityState.CANCELED
     }
 
     /** Checks the terminal state before the per kind matrix, so a DONE on a resolved activity answers ALREADY_DONE. */

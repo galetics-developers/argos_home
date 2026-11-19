@@ -36,19 +36,21 @@
     <string name="result_unknown_activity">Activity not found on phone</string>
     <string name="result_rejected">Not applied by phone</string>
 
-    <!-- Send failures -->
-    <string name="failure_phone_unreachable">Phone not reachable. Tap to retry.</string>
-    <string name="failure_send">Could not send. Tap to retry.</string>
+    <!-- Connection error state -->
+    <string name="error_connection_title">Connection error</string>
+    <string name="error_connection_message">Couldn\'t sync with your phone. Keep it nearby and try again.</string>
+    <string name="error_back">Back</string>
 
     <!-- Module indicator -->
     <string name="module_indicator_description">Module %1$d of %2$d</string>
 
     <!-- Actions module -->
     <string name="actions_title">ACTIONS</string>
-    <string name="actions_section">TASKS OR EVENTS</string>
-    <string name="actions_pending_count">%1$d pending</string>
+    <string name="actions_activities">Activities</string>
+    <string name="actions_pending_count">Pending %1$d</string>
     <string name="actions_open_description">Open activity</string>
     <string name="actions_back_description">Back to the list</string>
+    <string name="actions_empty_message">All activities complete</string>
 
     <!-- Nothing pending state -->
     <string name="nothing_pending_title">Nothing pending</string>
