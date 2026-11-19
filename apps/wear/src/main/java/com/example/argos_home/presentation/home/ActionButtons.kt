@@ -32,6 +32,7 @@ import com.example.argos_home.domain.TransitionRules
 import com.example.argos_home.presentation.theme.Error1
 import com.example.argos_home.presentation.theme.Info1
 import com.example.argos_home.presentation.theme.Success1
+import com.example.argos_home.presentation.theme.White50
 
 // Only the transitions legal for the current state and kind are shown; a resolved activity shows none, not three dimmed.
 /** The actions the watch offers for an activity, driven by the shared rules so the set matches the phone's. */
@@ -98,7 +99,7 @@ private fun ActionButton(
         modifier = Modifier
             .size((BUTTON_SIZE * scale).dp)
             .clip(RoundedCornerShape(percent = BUTTON_CORNER_PERCENT))
-            .background(accent.copy(alpha = CONTAINER_ALPHA))
+            .background(accent)
             .alpha(if (enabled) 1f else DISABLED_ALPHA)
             .clickable(
                 enabled = enabled,
@@ -114,7 +115,7 @@ private fun ActionButton(
             Icon(
                 painter = painterResource(iconRes),
                 contentDescription = stringResource(descriptionRes),
-                tint = accent,
+                tint = White50,
                 modifier = Modifier.size((ICON_SIZE * scale).dp)
             )
             Spacer(modifier = Modifier.height(((LABEL_TOP - ICON_TOP - ICON_SIZE) * scale).dp))
@@ -122,7 +123,7 @@ private fun ActionButton(
                 text = stringResource(labelRes),
                 // Scaled with the button, not taken from the theme: at theme size the longest label would not fit.
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = (LABEL_FONT_SIZE * scale).sp),
-                color = MaterialTheme.colorScheme.onSurface,
+                color = White50,
                 textAlign = TextAlign.Center,
                 softWrap = false,
                 maxLines = 1
@@ -139,9 +140,6 @@ private const val ICON_TOP = 7f
 private const val LABEL_TOP = 26f
 private const val BUTTON_CORNER_PERCENT = 30
 private const val LABEL_FONT_SIZE = 6.5f
-
-/** Soft wash of the action color behind the icon, light enough to keep the wording readable. */
-private const val CONTAINER_ALPHA = 0.16f
 
 /** A dimmed button is visibly out of reach while a request is in flight, and it also stops answering taps. */
 private const val DISABLED_ALPHA = 0.38f
