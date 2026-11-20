@@ -6,6 +6,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 
 /** Verifies the pure logic that drives the state-dependent buttons, the date/time labels and the seed. */
@@ -113,6 +114,97 @@ class CalendarLogicTest {
         assertTrue(isValidTimeRange(null, LocalTime.of(1, 0)))
         assertTrue(isValidTimeRange(LocalTime.of(14, 0), null))
     }
+
+    // The Home ring and counters ignore CANCELED, so the day's base is PENDING + CONFIRMED + DONE only.
+    @Test
+    fun homeSummary_countsExcludeCanceledAndComputePercent() {
+        val today = LocalDate.of(2026, 11, 20)
+        val midnight = LocalDateTime.of(today, LocalTime.MIDNIGHT)
+        val activities = listOf(
+            homeAct("h1", today, LocalTime.of(8, 0), ActivityState.DONE, "Done one"),
+            homeAct("h2", today, LocalTime.of(9, 0), ActivityState.DONE, "Done two"),
+            homeAct("h3", today, LocalTime.of(10, 0), ActivityState.PENDING, "Pending one"),
+            homeAct("h4", today, LocalTime.of(11, 0), ActivityState.CONFIRMED, "Confirmed one"),
+            homeAct("h5", today, LocalTime.of(12, 0), ActivityState.CANCELED, "Canceled one"),
+            homeAct("h6", today.plusDays(1), LocalTime.of(9, 0), ActivityState.PENDING, "Tomorrow one")
+        )
+        val summary = HomeSummary.of(activities, today, midnight)
+
+        assertEquals(4, summary.total)
+        assertEquals(1, summary.pending)
+        assertEquals(2, summary.completed)
+        assertEquals(50, summary.percent)
+        assertEquals(0.5f, summary.fraction, 0.0001f)
+        // Next event is the soonest still-pending activity from now on.
+        assertEquals("Pending one", summary.nextEventTitle)
+        // Upcoming keeps only open activities, soonest first; DONE and CANCELED are left out.
+        assertEquals(listOf("Pending one", "Confirmed one", "Tomorrow one"), summary.upcoming.map { it.title })
+    }
+
+    @Test
+    fun homeSummary_zeroTotalGivesZeroPercent() {
+        val today = LocalDate.of(2026, 11, 20)
+        val onlyCanceled = listOf(
+            homeAct("h1", today, LocalTime.of(8, 0), ActivityState.CANCELED, "Canceled")
+        )
+        val summary = HomeSummary.of(onlyCanceled, today, LocalDateTime.of(today, LocalTime.MIDNIGHT))
+        assertEquals(0, summary.total)
+        assertEquals(0, summary.percent)
+        assertEquals(0f, summary.fraction, 0.0001f)
+        assertEquals(null, summary.nextEventTitle)
+    }
+
+    @Test
+    fun homeSummary_nextEventSkipsActivitiesAlreadyStarted() {
+        val today = LocalDate.of(2026, 11, 20)
+        val now = LocalDateTime.of(today, LocalTime.of(10, 0))
+        val activities = listOf(
+            homeAct("past", today, LocalTime.of(8, 0), ActivityState.PENDING, "Earlier today"),
+            homeAct("next", today, LocalTime.of(14, 0), ActivityState.PENDING, "Later today")
+        )
+        assertEquals("Later today", HomeSummary.of(activities, today, now).nextEventTitle)
+    }
+
+    @Test
+    fun userInitials_takesFirstNameAndSurname() {
+        assertEquals("CS", userInitials("Cesar Sánchez"))
+        assertEquals("AP", userInitials("  ana  pérez  lópez "))
+        assertEquals("M", userInitials("Madonna"))
+        assertEquals("", userInitials("   "))
+    }
+
+    @Test
+    fun greetingFor_bucketsByHour() {
+        assertEquals(Greeting.MORNING, greetingFor(LocalTime.of(0, 0)))
+        assertEquals(Greeting.MORNING, greetingFor(LocalTime.of(11, 59)))
+        assertEquals(Greeting.AFTERNOON, greetingFor(LocalTime.of(12, 0)))
+        assertEquals(Greeting.AFTERNOON, greetingFor(LocalTime.of(17, 59)))
+        assertEquals(Greeting.EVENING, greetingFor(LocalTime.of(18, 0)))
+        assertEquals(Greeting.EVENING, greetingFor(LocalTime.of(23, 30)))
+    }
+
+    private fun homeAct(
+        id: String,
+        date: LocalDate,
+        start: LocalTime,
+        state: ActivityState,
+        title: String
+    ): ScheduledActivity =
+        ScheduledActivity(
+            id = id,
+            type = ItemType.TASK,
+            petName = "Boyka Sanchez",
+            title = title,
+            category = "Walking",
+            date = date,
+            startTime = start,
+            recurrence = Recurrence.DAILY,
+            reminderAmount = 15,
+            reminderUnit = ReminderUnit.MINUTES,
+            assignedTo = "Cesar Sánchez",
+            note = "note",
+            state = state
+        )
 
     private fun medRecord(date: LocalDate, status: MedicalRecordStatus): MedicalRecord =
         MedicalRecord(
