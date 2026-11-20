@@ -24,7 +24,7 @@ import com.example.argos_home.ui.theme.Primary600
 
 /** Bottom navigation destinations; only Pets and Calendar are wired, the rest are drawn for fidelity. */
 enum class Tab(@DrawableRes val iconRes: Int, @StringRes val labelRes: Int, val actionable: Boolean) {
-    HOME(R.drawable.ic_nav_home, R.string.nav_home, false),
+    HOME(R.drawable.ic_nav_home, R.string.nav_home, true),
     PETS(R.drawable.ic_nav_pets, R.string.nav_pets, true),
     CALENDAR(R.drawable.ic_nav_calendar, R.string.nav_calendar, true),
     HOUSEHOLD(R.drawable.ic_nav_household, R.string.nav_household, false),

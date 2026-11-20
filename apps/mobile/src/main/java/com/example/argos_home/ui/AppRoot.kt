@@ -6,12 +6,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.example.argos_home.domain.SeedData
 import com.example.argos_home.ui.calendar.CalendarScreen
 import com.example.argos_home.ui.calendar.Tab
+import com.example.argos_home.ui.home.HomeScreen
 import com.example.argos_home.ui.notifications.NotificationsScreen
 import com.example.argos_home.ui.pets.PetDetailScreen
 import com.example.argos_home.ui.pets.PetForm
 import com.example.argos_home.ui.pets.PetsScreen
+import java.time.LocalDate
 
 /** Sub-navigation inside the Pets tab; kept in state so no navigation dependency is needed. */
 sealed interface PetsRoute {
@@ -23,9 +26,19 @@ sealed interface PetsRoute {
 /** Root host: switches the bottom-nav tab, the pets sub-screens and the notifications overlay by state. */
 @Composable
 fun AppRoot() {
-    var tab by remember { mutableStateOf(Tab.PETS) }
+    var tab by remember { mutableStateOf(Tab.HOME) }
     var petsRoute by remember { mutableStateOf<PetsRoute>(PetsRoute.List) }
     var showNotifications by remember { mutableStateOf(false) }
+    // Switching home only relabels: multi-home is a label in this release, so the data never changes with it.
+    var activeHousehold by remember { mutableStateOf(SeedData.HOUSEHOLD_NAME) }
+    // Date the calendar opens on when reached from a Home activity card; a plain tab switch clears it to today.
+    var calendarDate by remember { mutableStateOf<LocalDate?>(null) }
+
+    // Shared bottom-nav handler: reaching the calendar by nav resets it to today, not a date opened from Home.
+    val selectTab: (Tab) -> Unit = { target ->
+        if (target == Tab.CALENDAR) calendarDate = null
+        tab = target
+    }
 
     // System back closes the overlay first, then walks the pets sub-screens back to the list.
     BackHandler(enabled = showNotifications) { showNotifications = false }
@@ -36,9 +49,27 @@ fun AppRoot() {
     when {
         showNotifications -> NotificationsScreen(onBack = { showNotifications = false })
 
+        tab == Tab.HOME -> HomeScreen(
+            onOpenNotifications = { showNotifications = true },
+            onSelectTab = selectTab,
+            // A double tap on a pet card lands on that pet's profile inside the Pets tab.
+            onOpenPet = {
+                tab = Tab.PETS
+                petsRoute = PetsRoute.Detail(it)
+            },
+            // A double tap on an activity card opens the calendar's Day view on that activity's date.
+            onOpenActivity = {
+                calendarDate = it
+                tab = Tab.CALENDAR
+            },
+            activeHousehold = activeHousehold,
+            onSwitchHousehold = { activeHousehold = it }
+        )
+
         tab == Tab.CALENDAR -> CalendarScreen(
             onOpenNotifications = { showNotifications = true },
-            onSelectTab = { tab = it }
+            onSelectTab = selectTab,
+            initialDate = calendarDate
         )
 
         else -> when (val route = petsRoute) {
@@ -46,7 +77,7 @@ fun AppRoot() {
                 onOpenPet = { petsRoute = PetsRoute.Detail(it) },
                 onAddPet = { petsRoute = PetsRoute.Form(null) },
                 onOpenNotifications = { showNotifications = true },
-                onSelectTab = { tab = it }
+                onSelectTab = selectTab
             )
 
             is PetsRoute.Detail -> PetDetailScreen(
