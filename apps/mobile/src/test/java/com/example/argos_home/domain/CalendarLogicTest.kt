@@ -104,6 +104,16 @@ class CalendarLogicTest {
         }
     }
 
+    // A time range is valid only when the end is strictly after the start; an open end is allowed.
+    @Test
+    fun timeRange_endMustBeAfterStart() {
+        assertTrue(isValidTimeRange(LocalTime.of(14, 0), LocalTime.of(15, 0)))
+        assertFalse(isValidTimeRange(LocalTime.of(14, 0), LocalTime.of(1, 0)))
+        assertFalse(isValidTimeRange(LocalTime.of(14, 0), LocalTime.of(14, 0)))
+        assertTrue(isValidTimeRange(null, LocalTime.of(1, 0)))
+        assertTrue(isValidTimeRange(LocalTime.of(14, 0), null))
+    }
+
     private fun medRecord(date: LocalDate, status: MedicalRecordStatus): MedicalRecord =
         MedicalRecord(
             id = "rec-01",
