@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.dp
 import com.example.argos_home.R
 import com.example.argos_home.domain.ActivityState
 import com.example.argos_home.domain.ItemType
-import com.example.argos_home.domain.TransitionRules
 import com.example.argos_home.ui.theme.Error1
 import com.example.argos_home.ui.theme.Info1
 import com.example.argos_home.ui.theme.Success1
@@ -28,10 +27,10 @@ data class StatusLabel(
     val color: Color
 )
 
-/** PENDING reads per kind of activity, and that wording comes from the shared rules so both devices label it alike. */
+/** Every state shows its real name with its own color; the type is kept for call-site symmetry with the card. */
 @Composable
-fun statusLabelOf(state: ActivityState, type: ItemType): StatusLabel = when (state) {
-    ActivityState.PENDING -> StatusLabel(TransitionRules.pendingLabel(type), Warning1)
+fun statusLabelOf(state: ActivityState, @Suppress("UNUSED_PARAMETER") type: ItemType): StatusLabel = when (state) {
+    ActivityState.PENDING -> StatusLabel(stringResource(R.string.status_pending), Warning1)
     ActivityState.CONFIRMED -> StatusLabel(stringResource(R.string.status_confirmed), Info1)
     ActivityState.DONE -> StatusLabel(stringResource(R.string.status_done), Success1)
     ActivityState.CANCELED -> StatusLabel(stringResource(R.string.status_canceled), Error1)
