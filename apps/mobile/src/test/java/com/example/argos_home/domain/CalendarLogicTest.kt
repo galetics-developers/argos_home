@@ -1,5 +1,6 @@
 package com.example.argos_home.domain
 
+import com.example.argos_home.data.MedicalRecordRepository
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -84,6 +85,34 @@ class CalendarLogicTest {
         assertEquals("Walking · Boyka Sanchez", activity.subtitle)
         assertFalse(activity.subtitle.isBlank())
     }
+
+    // The medical record status is never chosen by hand: it is derived from the date, and Canceled is preserved.
+    @Test
+    fun effectiveStatus_derivesFromDateAndKeepsCanceled() {
+        val today = LocalDate.of(2026, 11, 20)
+        assertEquals(MedicalRecordStatus.PENDING, effectiveStatus(medRecord(today.plusDays(3), MedicalRecordStatus.PENDING), today))
+        assertEquals(MedicalRecordStatus.REGISTERED, effectiveStatus(medRecord(today.minusDays(3), MedicalRecordStatus.PENDING), today))
+        assertEquals(MedicalRecordStatus.PENDING, effectiveStatus(medRecord(today, MedicalRecordStatus.PENDING), today))
+        assertEquals(MedicalRecordStatus.CANCELED, effectiveStatus(medRecord(today.minusDays(3), MedicalRecordStatus.CANCELED), today))
+    }
+
+    // Every pet owns exactly ten seeded medical records, local to the phone and never shared with the watch.
+    @Test
+    fun medicalRecords_seedTenPerPet() {
+        SeedData.pets.forEach { pet ->
+            assertEquals(10, MedicalRecordRepository.recordsFor(pet.id).size)
+        }
+    }
+
+    private fun medRecord(date: LocalDate, status: MedicalRecordStatus): MedicalRecord =
+        MedicalRecord(
+            id = "rec-01",
+            petId = "pet-01",
+            type = MedicalRecordType.VACCINE,
+            title = "Rabies booster",
+            date = date,
+            status = status
+        )
 
     private fun sample(start: LocalTime, reminder: Int, unit: ReminderUnit): ScheduledActivity =
         ScheduledActivity(
