@@ -4,7 +4,6 @@
     <!-- Top bar -->
     <string name="calendar_title">Calendar</string>
     <string name="notifications_description">Notifications</string>
-    <string name="notifications_count">2</string>
 
     <!-- View selector and filters -->
     <string name="view_month">Month</string>
@@ -33,6 +32,7 @@
     <string name="type_event">EVENT</string>
     <string name="chip_reminder">Reminder %1$s</string>
     <string name="chip_assigned_to">Assigned to %1$s</string>
+    <string name="status_pending">Pending</string>
     <string name="status_confirmed">Confirmed by me</string>
     <string name="status_done">Completed</string>
     <string name="status_canceled">Canceled</string>
@@ -60,11 +60,10 @@
     <string name="field_date">Date</string>
     <string name="hint_date">Select the date (e.g., 09/25/2026)</string>
     <string name="field_time">Time</string>
-    <string name="hint_time_start">Enter the time start (e.g., 08:30)</string>
-    <string name="hint_time_end">Enter the time end (e.g., 08:30)</string>
-    <string name="hint_period">Select AM or PM</string>
-    <string name="period_am">AM</string>
-    <string name="period_pm">PM</string>
+    <string name="hint_time_start">Select the start time</string>
+    <string name="hint_time_end">Select the end time</string>
+    <string name="time_picker_start_title">Select start time</string>
+    <string name="time_picker_end_title">Select end time</string>
     <string name="field_reminder">Reminder</string>
     <string name="hint_reminder_amount">Enter the amount (e.g., 15)</string>
     <string name="reminder_hint">Quick values: 5, 10, 15, 30, or 45 minutes before; 1, 2, 3, or 4 hours before; Custom</string>
