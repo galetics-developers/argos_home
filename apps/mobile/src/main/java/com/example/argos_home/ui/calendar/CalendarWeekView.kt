@@ -51,15 +51,31 @@ fun CalendarWeekView(
     modifier: Modifier = Modifier
 ) {
     val activities = ActivityRepository.activitiesOn(date, petFilter)
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        item { WeekHeaderCard(date, onDaySelected) }
-        item { ScheduleSectionHeader(count = activities.size, isToday = date == LocalDate.now()) }
-        scheduleCards(activities, onAction)
-        item { NewEventButton(onClick = onNewEvent, modifier = Modifier.padding(top = 4.dp)) }
+    // Week header (with the mini month), section head and "New event" stay put; only the cards scroll.
+    Column(modifier = modifier.fillMaxSize()) {
+        WeekHeaderCard(
+            date = date,
+            onDaySelected = onDaySelected,
+            modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 16.dp)
+        )
+        ScheduleSectionHeader(
+            count = activities.size,
+            isToday = date == LocalDate.now(),
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+        )
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            contentPadding = PaddingValues(bottom = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            scheduleCards(activities, onAction)
+        }
+        NewEventButton(
+            onClick = onNewEvent,
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+        )
     }
 }
 
