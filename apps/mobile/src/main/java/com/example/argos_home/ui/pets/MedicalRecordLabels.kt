@@ -7,7 +7,10 @@ import com.example.argos_home.R
 import com.example.argos_home.domain.MedicalRecordStatus
 import com.example.argos_home.domain.MedicalRecordType
 import com.example.argos_home.ui.theme.Error1
+import com.example.argos_home.ui.theme.Primary500
+import com.example.argos_home.ui.theme.Secondary500
 import com.example.argos_home.ui.theme.Success1
+import com.example.argos_home.ui.theme.Tertiary700
 import com.example.argos_home.ui.theme.Warning1
 
 /** Icon of a medical record type, drawn next to its title in the history. */
@@ -26,17 +29,24 @@ fun medicalTypeLabel(type: MedicalRecordType): Int = when (type) {
     MedicalRecordType.PROCEDURE -> R.string.med_type_procedure
 }
 
+/** Avatar color of a medical record type; a dark palette tone that keeps the white glyph legible. */
+fun medicalTypeColor(type: MedicalRecordType): Color = when (type) {
+    MedicalRecordType.VACCINE -> Primary500
+    MedicalRecordType.MEDICATION -> Secondary500
+    MedicalRecordType.PROCEDURE -> Tertiary700
+}
+
 /** Label of a medical record status. */
 @StringRes
 fun medicalStatusLabel(status: MedicalRecordStatus): Int = when (status) {
     MedicalRecordStatus.PENDING -> R.string.med_status_pending
-    MedicalRecordStatus.COMPLETED -> R.string.med_status_completed
+    MedicalRecordStatus.REGISTERED -> R.string.med_status_registered
     MedicalRecordStatus.CANCELED -> R.string.med_status_canceled
 }
 
 /** Color of a medical record status; always paired with its label, never shown alone. */
 fun medicalStatusColor(status: MedicalRecordStatus): Color = when (status) {
     MedicalRecordStatus.PENDING -> Warning1
-    MedicalRecordStatus.COMPLETED -> Success1
+    MedicalRecordStatus.REGISTERED -> Success1
     MedicalRecordStatus.CANCELED -> Error1
 }
