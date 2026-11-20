@@ -1,6 +1,7 @@
 package com.example.argos_home.ui.calendar
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,35 +35,31 @@ fun CalendarDayView(
     modifier: Modifier = Modifier
 ) {
     val activities = ActivityRepository.activitiesOn(date, petFilter)
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        item {
-            DayNavigator(
-                label = com.example.argos_home.domain.ActivityFormats.dayNavigatorLabel(date),
-                onPrevious = onPrevious,
-                onNext = onNext
-            )
+    // Navigator, section head and "New event" stay put; only the cards between them scroll.
+    Column(modifier = modifier.fillMaxSize()) {
+        DayNavigator(
+            label = com.example.argos_home.domain.ActivityFormats.dayNavigatorLabel(date),
+            onPrevious = onPrevious,
+            onNext = onNext
+        )
+        ScheduleSectionHeader(
+            count = activities.size,
+            isToday = date == LocalDate.now(),
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+        )
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            contentPadding = PaddingValues(bottom = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            scheduleCards(activities, onAction)
         }
-        item {
-            ScheduleSectionHeader(
-                count = activities.size,
-                isToday = date == LocalDate.now(),
-                modifier = Modifier.padding(horizontal = 20.dp)
-            )
-        }
-        scheduleCards(activities, onAction)
-        item {
-            NewEventButton(
-                onClick = onNewEvent,
-                modifier = Modifier
-                    .padding(horizontal = 20.dp)
-                    .padding(top = 4.dp)
-            )
-        }
+        NewEventButton(
+            onClick = onNewEvent,
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+        )
     }
 }
 
