@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,7 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.argos_home.R
-import com.example.argos_home.ui.theme.Error1
+import com.example.argos_home.ui.components.NotificationBellBadge
 import com.example.argos_home.ui.theme.Primary600
 import com.example.argos_home.ui.theme.White50
 
@@ -43,6 +45,8 @@ fun CalendarTopBar(onBell: () -> Unit, modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .background(Primary600)
+            // The branded bar owns the status-bar inset, so the purple fills behind the system clock.
+            .windowInsetsPadding(WindowInsets.statusBars)
             .padding(horizontal = 20.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -52,38 +56,7 @@ fun CalendarTopBar(onBell: () -> Unit, modifier: Modifier = Modifier) {
             color = White50
         )
         Spacer(modifier = Modifier.weight(1f))
-        NotificationBell(onBell = onBell)
-    }
-}
-
-/** Bell with its unread badge; a tap opens the notifications screen. */
-@Composable
-private fun NotificationBell(onBell: () -> Unit, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .size(32.dp)
-            .clip(CircleShape)
-            .clickable(onClick = onBell),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            painter = painterResource(R.drawable.ic_bell),
-            contentDescription = stringResource(R.string.notifications_description),
-            tint = White50,
-            modifier = Modifier.size(24.dp)
-        )
-        Text(
-            text = stringResource(R.string.notifications_count),
-            style = MaterialTheme.typography.labelSmall,
-            color = White50,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .offset(x = 4.dp, y = (-2).dp)
-                .clip(CircleShape)
-                .background(Error1)
-                .padding(horizontal = 5.dp)
-        )
+        NotificationBellBadge(onBell = onBell)
     }
 }
 
