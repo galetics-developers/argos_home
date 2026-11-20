@@ -40,6 +40,8 @@ import com.example.argos_home.domain.TransitionRules
 import com.example.argos_home.ui.theme.Argos_homeTheme
 import com.example.argos_home.ui.theme.Error1
 import com.example.argos_home.ui.theme.Info1
+import com.example.argos_home.ui.theme.Primary500
+import com.example.argos_home.ui.theme.Secondary500
 import com.example.argos_home.ui.theme.Success1
 import com.example.argos_home.ui.theme.White50
 
@@ -103,15 +105,9 @@ fun ActivityCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
-            // State repeated above the buttons, so the outcome of a tap is readable where it is taken.
-            Text(
-                text = status.text,
-                style = MaterialTheme.typography.labelMedium,
-                color = status.color
-            )
+            // The state shows once, in the pill above; the buttons are the only thing below the note.
             if (targets.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -177,19 +173,20 @@ private fun PetAvatar(petName: String, modifier: Modifier = Modifier) {
     }
 }
 
+// Task and Event read as two distinct brand tones, matching the watch so the kind is told apart at a glance.
 @Composable
 private fun TypeBadge(type: ItemType, modifier: Modifier = Modifier) {
-    val label = when (type) {
-        ItemType.TASK -> R.string.type_task
-        ItemType.EVENT -> R.string.type_event
+    val (label, color) = when (type) {
+        ItemType.TASK -> R.string.type_task to Primary500
+        ItemType.EVENT -> R.string.type_event to Secondary500
     }
     Text(
         text = stringResource(label),
         style = MaterialTheme.typography.labelSmall,
-        color = MaterialTheme.colorScheme.onPrimaryContainer,
+        color = White50,
         modifier = modifier
             .clip(RoundedCornerShape(6.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer)
+            .background(color)
             .padding(horizontal = 8.dp, vertical = 2.dp)
     )
 }
