@@ -85,10 +85,8 @@ fun CalendarScreen(
                 CalendarView.WEEK -> CalendarWeekView(
                     date = date,
                     petFilter = petFilter,
-                    onDaySelected = { day ->
-                        selectedDate = day.toEpochDay()
-                        view = CalendarView.DAY
-                    },
+                    // Picking a day in the week stays in Week and just reloads that day's cards below.
+                    onDaySelected = { day -> selectedDate = day.toEpochDay() },
                     onAction = onAction,
                     onNewEvent = { showNewActivity = true }
                 )
