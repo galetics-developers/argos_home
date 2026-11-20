@@ -2,6 +2,7 @@ package com.example.argos_home.ui.calendar
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -55,6 +56,8 @@ fun CalendarScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         bottomBar = { BottomNavBar(selected = Tab.CALENDAR, onSelect = onSelectTab) },
+        // The branded top bar owns the status-bar inset itself, so the scaffold adds none of its own.
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Column(
