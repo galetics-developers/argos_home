@@ -16,10 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -47,7 +45,7 @@ import com.example.argos_home.ui.theme.Error1
 import com.example.argos_home.ui.theme.Primary600
 import com.example.argos_home.ui.theme.White50
 
-/** Pet detail: a scrollable profile and tab content, with the pet actions pinned at the bottom. */
+/** Pet detail: a fixed profile, measures and tabs, with only the tab list scrolling and the actions pinned below. */
 @Composable
 fun PetDetailScreen(
     petId: String,
@@ -68,27 +66,21 @@ fun PetDetailScreen(
         Column(modifier = Modifier.fillMaxSize()) {
             DetailTopBar(onBack = onBack, onEdit = { onEdit(pet.id) })
 
-            // Only the profile and the tab content scroll; the actions stay fixed below.
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-            ) {
-                ProfileBlock(pet)
-                MeasuresRow(pet)
-                Spacer(modifier = Modifier.size(16.dp))
-                PetTabs(
-                    careSelected = careSelected,
-                    onCare = { careSelected = true },
-                    onHealth = { careSelected = false },
-                    modifier = Modifier.padding(horizontal = 20.dp)
-                )
-                Spacer(modifier = Modifier.size(16.dp))
-                Box(modifier = Modifier.padding(horizontal = 20.dp)) {
-                    if (careSelected) CareScheduleTab(pet.name) else HealthRecordsTab(pet.id)
-                }
-                Spacer(modifier = Modifier.size(16.dp))
+            // Profile, measures, tabs and actions stay fixed; only the tab list below scrolls.
+            ProfileBlock(pet)
+            MeasuresRow(pet)
+            Spacer(modifier = Modifier.size(16.dp))
+            PetTabs(
+                careSelected = careSelected,
+                onCare = { careSelected = true },
+                onHealth = { careSelected = false },
+                modifier = Modifier.padding(horizontal = 20.dp)
+            )
+            Spacer(modifier = Modifier.size(16.dp))
+            if (careSelected) {
+                CareScheduleTab(pet.name, Modifier.weight(1f).fillMaxWidth())
+            } else {
+                HealthRecordsTab(pet.id, Modifier.weight(1f).fillMaxWidth())
             }
 
             BottomActions(
