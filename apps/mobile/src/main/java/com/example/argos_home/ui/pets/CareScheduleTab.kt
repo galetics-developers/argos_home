@@ -5,9 +5,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,6 +26,7 @@ import com.example.argos_home.domain.ActivityFormats
 import com.example.argos_home.domain.ScheduledActivity
 import com.example.argos_home.ui.calendar.StatusPill
 import com.example.argos_home.ui.calendar.statusLabelOf
+import com.example.argos_home.ui.theme.White50
 
 /** Care schedule of one pet: its activities with kind, schedule, status and who confirmed each. */
 @Composable
@@ -31,23 +35,26 @@ fun CareScheduleTab(petName: String, modifier: Modifier = Modifier) {
         .filter { it.petName == petName }
         .sortedWith(compareBy({ it.date }, { it.startTime }))
 
-    Column(
-        modifier = modifier.fillMaxWidth(),
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 4.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         if (activities.isEmpty()) {
-            Text(
-                text = stringResource(R.string.schedule_empty),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            item {
+                Text(
+                    text = stringResource(R.string.schedule_empty),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         } else {
-            activities.forEach { CareRow(it) }
+            items(activities, key = { it.id }) { CareRow(it) }
         }
     }
 }
 
-/** A compact activity row: type badge, title, schedule, and status with "Confirmed by" when resolved. */
+/** A compact activity row: category badge, title, schedule, and status with "Confirmed by" when resolved. */
 @Composable
 private fun CareRow(activity: ScheduledActivity) {
     val status = statusLabelOf(activity.state, activity.type)
@@ -62,10 +69,10 @@ private fun CareRow(activity: ScheduledActivity) {
             Text(
                 text = activity.category,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                color = White50,
                 modifier = Modifier
                     .clip(RoundedCornerShape(6.dp))
-                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .background(categoryColor(activity.category))
                     .padding(horizontal = 8.dp, vertical = 2.dp)
             )
             Spacer(modifier = Modifier.weight(1f))
