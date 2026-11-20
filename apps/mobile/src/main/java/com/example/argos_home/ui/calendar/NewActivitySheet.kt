@@ -219,10 +219,12 @@ private fun NewActivityForm(
         FieldLabel(stringResource(R.string.field_notes))
         OutlinedTextField(
             value = notes,
-            onValueChange = { notes = it },
+            onValueChange = { if (it.length <= NOTE_MAX_LENGTH) notes = it },
             placeholder = { Text(stringResource(R.string.hint_notes)) },
             shape = RoundedCornerShape(12.dp),
             minLines = 2,
+            maxLines = 4,
+            supportingText = { Text("${notes.length}/$NOTE_MAX_LENGTH") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -528,6 +530,9 @@ private fun buildActivity(
     assignedTo = assignedTo,
     note = note
 )
+
+/** Cap on the note so a card keeps to two short lines and the stored text stays reasonable. */
+private const val NOTE_MAX_LENGTH = 120
 
 private val TASK_TYPES = listOf("Walking", "Feeding", "Play", "Training", "Care", "Grooming")
 private val EVENT_TYPES = listOf(
