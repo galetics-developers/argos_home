@@ -33,6 +33,7 @@ import com.example.argos_home.data.PetRepository
 import com.example.argos_home.domain.Household
 import com.example.argos_home.ui.calendar.BottomNavBar
 import com.example.argos_home.ui.calendar.Tab
+import com.example.argos_home.ui.components.NotificationBellBadge
 import com.example.argos_home.ui.theme.Primary600
 import com.example.argos_home.ui.theme.White50
 
@@ -110,16 +111,7 @@ private fun PetsTopBar(count: Int, onBell: () -> Unit) {
                 .padding(horizontal = 10.dp, vertical = 4.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
-        Icon(
-            painter = painterResource(R.drawable.ic_bell),
-            contentDescription = stringResource(R.string.notifications_title),
-            tint = White50,
-            modifier = Modifier
-                .size(32.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .clickable(onClick = onBell)
-                .padding(4.dp)
-        )
+        NotificationBellBadge(onBell = onBell)
     }
 }
 
