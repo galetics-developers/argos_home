@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.argos_home.R
@@ -99,10 +100,13 @@ fun ActivityCard(
             }
 
             Spacer(modifier = Modifier.height(10.dp))
+            // The note is capped at two lines on the card; a longer note is trimmed with an ellipsis.
             Text(
                 text = activity.note,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
 
             // The state shows once, in the pill above; the buttons are the only thing below the note.
