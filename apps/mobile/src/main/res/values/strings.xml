@@ -176,4 +176,27 @@
     <string name="time_minutes_ago">%1$dm ago</string>
     <string name="time_hours_ago">%1$dh ago</string>
     <string name="time_days_ago">%1$dd ago</string>
+
+    <!-- Home -->
+    <string name="greeting_morning">Good morning</string>
+    <string name="greeting_afternoon">Good afternoon</string>
+    <string name="greeting_evening">Good evening</string>
+    <string name="home_today_care">Today\'s care · %1$s</string>
+    <string name="home_tasks_done">of %1$d tasks done</string>
+    <string name="home_percent">%1$d%%</string>
+    <string name="home_stat_total">Total tasks today</string>
+    <string name="home_stat_pending">Pending tasks today</string>
+    <string name="home_stat_completed">Completed tasks today</string>
+    <string name="home_stat_next_event">Next event</string>
+    <string name="home_next_event_empty">—</string>
+    <string name="home_care_by_pet">Care by pet</string>
+    <string name="home_care_by_pet_subtitle">Tap Confirm when a task is done</string>
+    <string name="home_pets_count">%1$d pets</string>
+    <string name="home_upcoming">Upcoming</string>
+    <string name="home_upcoming_empty">No upcoming activities.</string>
+    <string name="switch_household">Switch household</string>
+    <string name="home_members_count">%1$d members</string>
+    <string name="home_active_household">Active household</string>
+    <string name="home_create_or_join">Create or join household</string>
+    <string name="close">Close</string>
 </resources>
