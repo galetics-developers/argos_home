@@ -55,6 +55,7 @@ import com.example.argos_home.domain.Recurrence
 import com.example.argos_home.domain.ReminderUnit
 import com.example.argos_home.domain.ScheduledActivity
 import com.example.argos_home.domain.SeedData
+import com.example.argos_home.domain.isValidTimeRange
 import com.example.argos_home.ui.theme.Primary600
 import com.example.argos_home.ui.theme.White50
 import java.time.Instant
@@ -106,8 +107,10 @@ private fun NewActivityForm(
     val petOptions = remember { SeedData.pets.map { it.name } }
     val memberOptions = remember { listOf("You") + SeedData.members.map { it.name } }
 
+    // An event's end time may not fall before its start time; an open end is allowed.
+    val timeRangeValid = isValidTimeRange(startTime, endTime)
     val canSave = title.isNotBlank() && petName.isNotBlank() && startTime != null &&
-        (type == ItemType.TASK || endTime != null)
+        (type == ItemType.TASK || endTime != null) && timeRangeValid
 
     Column(
         modifier = Modifier
@@ -176,6 +179,13 @@ private fun NewActivityForm(
                 readOnly = true,
                 onClick = { showEndPicker = true }
             )
+            if (endTime != null && !timeRangeValid) {
+                Text(
+                    text = stringResource(R.string.end_time_after_start),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
         }
 
         if (type == ItemType.TASK) {

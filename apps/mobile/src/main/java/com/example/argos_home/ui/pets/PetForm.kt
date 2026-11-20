@@ -255,12 +255,12 @@ private fun TypeGrid(selected: PetType, onSelect: (PetType) -> Unit) {
 
 @Composable
 private fun TypeCard(type: PetType, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    // Each type carries its group color on the border and icon; selecting it fills the card with that color.
+    // Each type carries its group color on the border and icon; selecting it fills the card with that color and whitens the glyph.
     val color = petTypeColor(type)
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(if (selected) color.copy(alpha = 0.16f) else MaterialTheme.colorScheme.surface)
+            .background(if (selected) color else MaterialTheme.colorScheme.surface)
             .border(if (selected) 2.dp else 1.dp, color, RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
             .padding(vertical = 10.dp),
@@ -270,13 +270,13 @@ private fun TypeCard(type: PetType, selected: Boolean, onClick: () -> Unit, modi
         Icon(
             painter = painterResource(petIconOf(type)),
             contentDescription = null,
-            tint = color,
+            tint = if (selected) White50 else color,
             modifier = Modifier.size(22.dp)
         )
         Text(
             text = stringResource(petTypeLabel(type)),
             style = MaterialTheme.typography.labelSmall,
-            color = if (selected) color else MaterialTheme.colorScheme.onSurface,
+            color = if (selected) White50 else MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
             maxLines = 1
         )

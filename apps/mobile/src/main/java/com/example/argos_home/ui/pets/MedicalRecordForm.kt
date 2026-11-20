@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -42,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -50,11 +52,14 @@ import com.example.argos_home.domain.ActivityFormats
 import com.example.argos_home.domain.MedicalRecord
 import com.example.argos_home.domain.MedicalRecordStatus
 import com.example.argos_home.domain.MedicalRecordType
+import com.example.argos_home.domain.ReminderUnit
 import com.example.argos_home.domain.SeedData
+import com.example.argos_home.domain.isValidTimeRange
 import com.example.argos_home.ui.theme.Primary600
 import com.example.argos_home.ui.theme.White50
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneOffset
 
 /** Full-screen add-record form shown over the detail; its own entity and fields, never a calendar activity. */
@@ -81,16 +86,21 @@ private fun RecordForm(petId: String, onCancel: () -> Unit, onSave: (MedicalReco
     var type by remember { mutableStateOf(MedicalRecordType.VACCINE) }
     var title by remember { mutableStateOf("") }
     var date by remember { mutableStateOf(LocalDate.now()) }
-    var period by remember { mutableStateOf("") }
+    var startTime by remember { mutableStateOf<LocalTime?>(null) }
+    var endTime by remember { mutableStateOf<LocalTime?>(null) }
+    var reminderAmount by remember { mutableStateOf("15") }
+    var reminderUnit by remember { mutableStateOf(ReminderUnit.MINUTES) }
     var assignedTo by remember { mutableStateOf("") }
-    var status by remember { mutableStateOf(MedicalRecordStatus.PENDING) }
     var notes by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
+    var showStartPicker by remember { mutableStateOf(false) }
+    var showEndPicker by remember { mutableStateOf(false) }
 
     val typeLabels = MedicalRecordType.entries.map { stringResource(medicalTypeLabel(it)) }
-    val statusLabels = MedicalRecordStatus.entries.map { stringResource(medicalStatusLabel(it)) }
     val assigneeOptions = remember { SeedData.members.map { it.name } + listOf("Argos Vet Clinic", "Northside Vet Clinic") }
-    val canSave = title.isNotBlank()
+    // End time may not fall before the start time; an open end is allowed.
+    val timeRangeValid = isValidTimeRange(startTime, endTime)
+    val canSave = title.isNotBlank() && timeRangeValid
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Branded header merged with the status bar, back control included.
@@ -147,27 +157,59 @@ private fun RecordForm(petId: String, onCancel: () -> Unit, onSave: (MedicalReco
                 onClick = { showDatePicker = true }
             )
 
-            FieldLabel(stringResource(R.string.field_period))
-            PlainField(period, { period = it }, stringResource(R.string.hint_record_period))
+            FieldLabel(stringResource(R.string.field_start_time))
+            ClickableField(
+                value = startTime?.let { ActivityFormats.time(it) } ?: "",
+                placeholder = stringResource(R.string.hint_time_start),
+                onClick = { showStartPicker = true }
+            )
+
+            FieldLabel(stringResource(R.string.field_end_time))
+            ClickableField(
+                value = endTime?.let { ActivityFormats.time(it) } ?: "",
+                placeholder = stringResource(R.string.hint_time_end),
+                onClick = { showEndPicker = true }
+            )
+            if (!timeRangeValid) {
+                Text(
+                    text = stringResource(R.string.end_time_after_start),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
+            FieldLabel(stringResource(R.string.field_reminder))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = reminderAmount,
+                    onValueChange = { input -> reminderAmount = input.filter { it.isDigit() }.take(3) },
+                    placeholder = { Text(stringResource(R.string.hint_reminder_amount)) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.weight(1f)
+                )
+                OptionDropdown(
+                    value = ActivityFormats.unitLabel(reminderUnit),
+                    placeholder = ActivityFormats.unitLabel(ReminderUnit.MINUTES),
+                    options = ReminderUnit.entries.map { ActivityFormats.unitLabel(it) },
+                    onIndex = { reminderUnit = ReminderUnit.entries[it] },
+                    modifier = Modifier.weight(1f)
+                )
+            }
 
             FieldLabel(stringResource(R.string.field_clinic))
             SuggestField(assignedTo, { assignedTo = it }, stringResource(R.string.hint_clinic), assigneeOptions)
 
-            FieldLabel(stringResource(R.string.field_status), required = true)
-            OptionDropdown(
-                value = stringResource(medicalStatusLabel(status)),
-                placeholder = stringResource(R.string.field_status),
-                options = statusLabels,
-                onIndex = { status = MedicalRecordStatus.entries[it] }
-            )
-
             FieldLabel(stringResource(R.string.field_notes))
             OutlinedTextField(
                 value = notes,
-                onValueChange = { notes = it },
+                onValueChange = { if (it.length <= NOTE_MAX_LENGTH) notes = it },
                 placeholder = { Text(stringResource(R.string.hint_notes)) },
                 shape = RoundedCornerShape(12.dp),
                 minLines = 2,
+                maxLines = 4,
+                supportingText = { Text("${notes.length}/$NOTE_MAX_LENGTH") },
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -193,9 +235,12 @@ private fun RecordForm(petId: String, onCancel: () -> Unit, onSave: (MedicalReco
                             type = type,
                             title = title.trim(),
                             date = date,
-                            period = period.trim(),
+                            startTime = startTime,
+                            endTime = endTime,
+                            reminderAmount = reminderAmount.toIntOrNull() ?: 0,
+                            reminderUnit = reminderUnit,
                             assignedTo = assignedTo.trim(),
-                            status = status,
+                            status = MedicalRecordStatus.PENDING,
                             note = notes.trim()
                         )
                     )
@@ -240,4 +285,24 @@ private fun RecordForm(petId: String, onCancel: () -> Unit, onSave: (MedicalReco
             DatePicker(state = pickerState)
         }
     }
+
+    if (showStartPicker) {
+        TimePickerModal(
+            title = stringResource(R.string.time_picker_start_title),
+            initial = startTime,
+            onConfirm = { startTime = it; showStartPicker = false },
+            onDismiss = { showStartPicker = false }
+        )
+    }
+    if (showEndPicker) {
+        TimePickerModal(
+            title = stringResource(R.string.time_picker_end_title),
+            initial = endTime,
+            onConfirm = { endTime = it; showEndPicker = false },
+            onDismiss = { showEndPicker = false }
+        )
+    }
 }
+
+/** Cap on the note so a card keeps to two short lines and the stored text stays reasonable. */
+private const val NOTE_MAX_LENGTH = 120

@@ -120,7 +120,7 @@
     <string name="add_health_record">Add health record</string>
     <string name="record_assigned_to">Assigned to %1$s</string>
     <string name="med_status_pending">Pending</string>
-    <string name="med_status_completed">Completed</string>
+    <string name="med_status_registered">Registered</string>
     <string name="med_status_canceled">Canceled</string>
     <string name="med_type_vaccine">Vaccine</string>
     <string name="med_type_medication">Medication</string>
@@ -131,9 +131,9 @@
     <string name="field_record_type">Record type</string>
     <string name="field_record_title">Title</string>
     <string name="hint_record_title">Enter the record title (e.g., Rabies booster)</string>
-    <string name="field_period">Period</string>
-    <string name="hint_record_period">Enter the period (e.g., 7-day course or 10:30 - 14:00)</string>
-    <string name="field_status">Status</string>
+    <string name="field_start_time">Start time</string>
+    <string name="field_end_time">End time</string>
+    <string name="end_time_after_start">End time must be after the start time.</string>
     <string name="field_clinic">Assigned to / clinic</string>
     <string name="hint_clinic">Member or clinic (e.g., Argos Vet Clinic)</string>
 
