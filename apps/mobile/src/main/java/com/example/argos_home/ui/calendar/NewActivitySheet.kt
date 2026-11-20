@@ -2,14 +2,15 @@ package com.example.argos_home.ui.calendar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -27,9 +28,12 @@ import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -87,22 +92,20 @@ private fun NewActivityForm(
     var category by remember { mutableStateOf("") }
     var petName by remember { mutableStateOf("") }
     var date by remember { mutableStateOf(defaultDate) }
-    var startText by remember { mutableStateOf("") }
-    var startPeriod by remember { mutableStateOf("AM") }
-    var endText by remember { mutableStateOf("") }
-    var endPeriod by remember { mutableStateOf("AM") }
+    var startTime by remember { mutableStateOf<LocalTime?>(null) }
+    var endTime by remember { mutableStateOf<LocalTime?>(null) }
     var frequency by remember { mutableStateOf(Recurrence.DAILY) }
     var reminderAmount by remember { mutableStateOf("15") }
     var reminderUnit by remember { mutableStateOf(ReminderUnit.MINUTES) }
     var assignedTo by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
+    var showStartPicker by remember { mutableStateOf(false) }
+    var showEndPicker by remember { mutableStateOf(false) }
 
     val petOptions = remember { SeedData.pets.map { it.name } }
     val memberOptions = remember { listOf("You") + SeedData.members.map { it.name } }
 
-    val startTime = parseTime(startText, startPeriod)
-    val endTime = parseTime(endText, endPeriod)
     val canSave = title.isNotBlank() && petName.isNotBlank() && startTime != null &&
         (type == ItemType.TASK || endTime != null)
 
@@ -158,20 +161,20 @@ private fun NewActivityForm(
         )
 
         FieldLabel(stringResource(R.string.field_time))
-        TimeRow(
-            text = startText,
-            onText = { startText = it },
+        PlainField(
+            value = startTime?.let { ActivityFormats.time(it) } ?: "",
+            onValue = {},
             placeholder = stringResource(R.string.hint_time_start),
-            period = startPeriod,
-            onPeriod = { startPeriod = it }
+            readOnly = true,
+            onClick = { showStartPicker = true }
         )
         if (type == ItemType.EVENT) {
-            TimeRow(
-                text = endText,
-                onText = { endText = it },
+            PlainField(
+                value = endTime?.let { ActivityFormats.time(it) } ?: "",
+                onValue = {},
                 placeholder = stringResource(R.string.hint_time_end),
-                period = endPeriod,
-                onPeriod = { endPeriod = it }
+                readOnly = true,
+                onClick = { showEndPicker = true }
             )
         }
 
@@ -216,10 +219,12 @@ private fun NewActivityForm(
         FieldLabel(stringResource(R.string.field_notes))
         OutlinedTextField(
             value = notes,
-            onValueChange = { notes = it },
+            onValueChange = { if (it.length <= NOTE_MAX_LENGTH) notes = it },
             placeholder = { Text(stringResource(R.string.hint_notes)) },
             shape = RoundedCornerShape(12.dp),
             minLines = 2,
+            maxLines = 4,
+            supportingText = { Text("${notes.length}/$NOTE_MAX_LENGTH") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -284,6 +289,23 @@ private fun NewActivityForm(
             DatePicker(state = pickerState)
         }
     }
+
+    if (showStartPicker) {
+        TimePickerModal(
+            title = stringResource(R.string.time_picker_start_title),
+            initial = startTime,
+            onConfirm = { startTime = it; showStartPicker = false },
+            onDismiss = { showStartPicker = false }
+        )
+    }
+    if (showEndPicker) {
+        TimePickerModal(
+            title = stringResource(R.string.time_picker_end_title),
+            initial = endTime,
+            onConfirm = { endTime = it; showEndPicker = false },
+            onDismiss = { showEndPicker = false }
+        )
+    }
 }
 
 /** Task/Event segmented toggle. */
@@ -327,7 +349,7 @@ private fun FieldLabel(text: String) {
     )
 }
 
-/** Plain text field; when [readOnly] it is used as a click target (e.g. the date field opens the picker). */
+/** Plain text field; with [onClick] it becomes a picker trigger, a transparent overlay forwarding the tap. */
 @Composable
 private fun PlainField(
     value: String,
@@ -336,17 +358,29 @@ private fun PlainField(
     readOnly: Boolean = false,
     onClick: (() -> Unit)? = null
 ) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValue,
-        placeholder = { Text(placeholder) },
-        singleLine = true,
-        readOnly = readOnly,
-        shape = RoundedCornerShape(12.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
-    )
+    Box(modifier = Modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValue,
+            placeholder = { Text(placeholder) },
+            singleLine = true,
+            readOnly = readOnly,
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        )
+        // A read-only field swallows taps, so an invisible overlay catches them and opens the picker.
+        if (onClick != null) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onClick
+                    )
+            )
+        }
+    }
 }
 
 /** Editable field with suggestions: shows up to six matching options, or the first few when empty. */
@@ -416,45 +450,47 @@ private fun OptionDropdown(
     }
 }
 
-/** A time text field ("08:30") beside an AM/PM drop-down. */
+/** Native Material3 time picker in a dialog; confirms a [LocalTime] or leaves the field untouched on cancel. */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TimeRow(
-    text: String,
-    onText: (String) -> Unit,
-    placeholder: String,
-    period: String,
-    onPeriod: (String) -> Unit
+private fun TimePickerModal(
+    title: String,
+    initial: LocalTime?,
+    onConfirm: (LocalTime) -> Unit,
+    onDismiss: () -> Unit
 ) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        OutlinedTextField(
-            value = text,
-            onValueChange = { onText(it.filter { c -> c.isDigit() || c == ':' }.take(5)) },
-            placeholder = { Text(placeholder) },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier.weight(1f)
-        )
-        OptionDropdown(
-            value = period,
-            placeholder = stringResource(R.string.hint_period),
-            options = listOf("AM", "PM"),
-            onIndex = { onPeriod(if (it == 0) "AM" else "PM") },
-            modifier = Modifier.width(110.dp)
-        )
+    val state = rememberTimePickerState(
+        initialHour = initial?.hour ?: 8,
+        initialMinute = initial?.minute ?: 0,
+        is24Hour = false
+    )
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface) {
+            Column(
+                modifier = Modifier.padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp)
+                )
+                TimePicker(state = state)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.date_picker_dismiss)) }
+                    TextButton(onClick = { onConfirm(LocalTime.of(state.hour, state.minute)) }) {
+                        Text(stringResource(R.string.date_picker_confirm))
+                    }
+                }
+            }
+        }
     }
-}
-
-/** Parses "8:30" + "AM"/"PM" into a 24-hour [LocalTime]; returns null when the text is not a valid clock time. */
-private fun parseTime(text: String, period: String): LocalTime? {
-    val trimmed = text.trim()
-    if (trimmed.isEmpty()) return null
-    val parts = trimmed.split(":")
-    val hour12 = parts.getOrNull(0)?.toIntOrNull() ?: return null
-    val minute = if (parts.size > 1) parts[1].toIntOrNull() ?: return null else 0
-    if (hour12 !in 1..12 || minute !in 0..59) return null
-    val hour24 = (hour12 % 12) + if (period == "PM") 12 else 0
-    return LocalTime.of(hour24, minute)
 }
 
 private fun defaultCategory(type: ItemType): String =
@@ -494,6 +530,9 @@ private fun buildActivity(
     assignedTo = assignedTo,
     note = note
 )
+
+/** Cap on the note so a card keeps to two short lines and the stored text stays reasonable. */
+private const val NOTE_MAX_LENGTH = 120
 
 private val TASK_TYPES = listOf("Walking", "Feeding", "Play", "Training", "Care", "Grooming")
 private val EVENT_TYPES = listOf(

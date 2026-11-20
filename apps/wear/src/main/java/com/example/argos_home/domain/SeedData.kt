@@ -44,82 +44,151 @@ object SeedData {
     fun petTypeOf(petName: String): PetType =
         pets.firstOrNull { it.name == petName }?.type ?: PetType.OTHER
 
-    // Anchored to the real current day so the data is live: some activities today, the rest across the weeks ahead.
+    // Anchored to the real current day so the data is live: a full day today, the rest across the weeks ahead.
     private val today: LocalDate = LocalDate.now()
 
-    // Five tasks per pet; the day offsets keep two of them today for the "today" progress and the watch "nearest".
-    private val taskTitles = listOf("Morning walk", "Breakfast", "Playtime", "Training session", "Evening brushing")
+    // Each pet gets one task and one event per category, so the kinds stay balanced across the home.
     private val taskCategories = listOf("Walking", "Feeding", "Play", "Training", "Grooming")
-    private val taskNotes = listOf(
-        "Keep the leash short near the gate.",
-        "Use the usual bowl and fresh water.",
-        "About twenty minutes of play.",
-        "Reinforce the basic commands.",
-        "Brush the coat gently."
-    )
-    private val taskDayOffsets = listOf(0L, 0L, 2L, 5L, 9L)
-
-    // Five events per pet, spread over the weeks ahead so the calendar and the watch have a realistic agenda.
-    private val eventTitles = listOf("Vaccination", "Vet checkup", "Deworming", "Grooming appointment", "Dental cleaning")
     private val eventCategories = listOf("Vaccination", "Checkup", "Deworming", "Grooming", "Dental")
-    private val eventNotes = listOf(
-        "Bring the vaccination card.",
-        "Mention the recent appetite.",
-        "Follow the vet's dosage.",
-        "Ask for a short summer trim.",
-        "Fasting required the night before."
+
+    // Per-category title pools; the pet index picks one, so two pets rarely read the same title.
+    private val taskTitles: Map<String, List<String>> = mapOf(
+        "Walking" to listOf("Morning walk", "Afternoon stroll", "Evening walk", "Park visit", "Long hike"),
+        "Feeding" to listOf("Breakfast", "Lunch", "Dinner", "Snack time", "Water refill"),
+        "Play" to listOf("Playtime", "Fetch session", "Tug of war", "Puzzle toy", "Garden romp"),
+        "Training" to listOf("Training session", "Obedience drill", "Recall practice", "Trick practice", "Leash manners"),
+        "Grooming" to listOf("Evening brushing", "Coat brushing", "Ear cleaning", "Nail check", "Bath time")
     )
-    private val eventDayOffsets = listOf(1L, 4L, 7L, 12L, 18L)
+    private val eventTitles: Map<String, List<String>> = mapOf(
+        "Vaccination" to listOf("Rabies vaccine", "Annual vaccination", "Booster shot", "Distemper shot", "Parvo vaccine"),
+        "Checkup" to listOf("Vet checkup", "Wellness exam", "Weight check", "Senior review", "General checkup"),
+        "Deworming" to listOf("Deworming", "Parasite control", "Flea treatment", "Tick treatment", "Antiparasite dose"),
+        "Grooming" to listOf("Grooming appointment", "Professional bath", "Summer trim", "Full grooming", "Nail trimming"),
+        "Dental" to listOf("Dental cleaning", "Teeth scaling", "Oral exam", "Plaque removal", "Dental review")
+    )
+    private val taskNotes: Map<String, String> = mapOf(
+        "Walking" to "Keep the leash short near the gate.",
+        "Feeding" to "Use the usual bowl and fresh water.",
+        "Play" to "About twenty minutes of play.",
+        "Training" to "Reinforce the basic commands.",
+        "Grooming" to "Brush the coat gently."
+    )
+    private val eventNotes: Map<String, String> = mapOf(
+        "Vaccination" to "Bring the vaccination card.",
+        "Checkup" to "Mention the recent appetite.",
+        "Deworming" to "Follow the vet's dosage.",
+        "Grooming" to "Ask for a short summer trim.",
+        "Dental" to "Fasting required the night before."
+    )
 
-    /** Ten activities per pet (5 tasks + 5 events), generated so each pet owns its own schedule, related by pet. */
-    val activities: List<ScheduledActivity> = pets.flatMapIndexed { petIndex, pet ->
-        buildActivitiesFor(pet, petIndex)
-    }
+    // Up to six start slots per day; the slot index sets the time, so no two activities share an hour that day.
+    private val daySlots: List<LocalTime> = listOf(
+        LocalTime.of(7, 0), LocalTime.of(9, 30), LocalTime.of(11, 0),
+        LocalTime.of(14, 30), LocalTime.of(16, 0), LocalTime.of(18, 30)
+    )
 
-    /** The ten activities of one pet; a few of today's tasks start resolved so the progress bars vary across pets. */
-    private fun buildActivitiesFor(pet: Pet, petIndex: Int): List<ScheduledActivity> {
+    // Number of days the agenda spreads over; 14 pets * 10 activities / 28 days = five activities per day.
+    private const val SPREAD_DAYS = 28
+
+    // Rotated across days and slots so every day shows each state and the cards exercise every button set.
+    private val stateCycle = listOf(
+        ActivityState.PENDING, ActivityState.CONFIRMED, ActivityState.DONE, ActivityState.CANCELED
+    )
+
+    /** A pet's activity before it is placed on the calendar; date and time are assigned during distribution. */
+    private class Template(
+        val id: String,
+        val type: ItemType,
+        val petName: String,
+        val title: String,
+        val category: String,
+        val note: String,
+        val assignedTo: String,
+        val recurrence: Recurrence,
+        val reminderAmount: Int,
+        val reminderUnit: ReminderUnit
+    )
+
+    /** Ten activities per pet (5 tasks + 5 events), spread so every active day holds four to six of them. */
+    val activities: List<ScheduledActivity> = buildActivities()
+
+    private fun buildActivities(): List<ScheduledActivity> {
+        val templates = buildTemplates()
+        // Round-robin into days: each day draws from distant templates, so it mixes pets and both kinds.
+        val byDay = templates.withIndex().groupBy({ it.index % SPREAD_DAYS }, { it.value })
         val result = mutableListOf<ScheduledActivity>()
-        val doneToday = petIndex % 3
-        for (i in 0 until 5) {
-            val member = if (i == 0) localMember.name else members[(petIndex + i) % members.size].name
-            val isDone = taskDayOffsets[i] == 0L && i < doneToday
-            result += ScheduledActivity(
-                id = "act-${pet.id}-t${i + 1}",
-                type = ItemType.TASK,
-                petName = pet.name,
-                title = taskTitles[i],
-                category = taskCategories[i],
-                date = today.plusDays(taskDayOffsets[i]),
-                startTime = LocalTime.of(7 + i * 2, 0),
-                recurrence = Recurrence.DAILY,
-                reminderAmount = 15,
-                reminderUnit = ReminderUnit.MINUTES,
-                assignedTo = member,
-                note = taskNotes[i],
-                state = if (isDone) ActivityState.DONE else ActivityState.PENDING,
-                resolvedBy = if (isDone) member else null,
-                resolvedAtMillis = if (isDone) System.currentTimeMillis() else null
-            )
-        }
-        for (i in 0 until 5) {
-            val member = if (i == 0) localMember.name else members[(petIndex + i) % members.size].name
-            val start = LocalTime.of(9 + i, 0)
-            result += ScheduledActivity(
-                id = "act-${pet.id}-e${i + 1}",
-                type = ItemType.EVENT,
-                petName = pet.name,
-                title = eventTitles[i],
-                category = eventCategories[i],
-                date = today.plusDays(eventDayOffsets[i]),
-                startTime = start,
-                endTime = start.plusHours(2),
-                recurrence = Recurrence.ONCE,
-                reminderAmount = 1,
-                reminderUnit = ReminderUnit.HOURS,
-                assignedTo = member,
-                note = eventNotes[i]
-            )
+        byDay.forEach { (dayIndex, dayTemplates) ->
+            val date = today.plusDays(dayIndex.toLong())
+            dayTemplates.forEachIndexed { slot, t ->
+                val start = daySlots[slot % daySlots.size]
+                val end = if (t.type == ItemType.EVENT) start.plusHours(if (slot % 2 == 0) 1 else 2) else null
+                // The four states rotate, so each day carries a mix and the terminal ones carry a resolver.
+                val state = stateCycle[(slot + dayIndex) % stateCycle.size]
+                val resolved = state == ActivityState.DONE || state == ActivityState.CANCELED
+                result += ScheduledActivity(
+                    id = t.id,
+                    type = t.type,
+                    petName = t.petName,
+                    title = t.title,
+                    category = t.category,
+                    date = date,
+                    startTime = start,
+                    endTime = end,
+                    recurrence = t.recurrence,
+                    reminderAmount = t.reminderAmount,
+                    reminderUnit = t.reminderUnit,
+                    assignedTo = t.assignedTo,
+                    note = t.note,
+                    state = state,
+                    resolvedBy = if (resolved) t.assignedTo else null,
+                    resolvedAtMillis = if (resolved) System.currentTimeMillis() else null
+                )
+            }
         }
         return result
     }
+
+    /** Five tasks and five events per pet, with titles, categories and owners varied by pet. */
+    private fun buildTemplates(): List<Template> {
+        val templates = mutableListOf<Template>()
+        pets.forEachIndexed { petIndex, pet ->
+            for (i in 0 until 5) {
+                val category = taskCategories[i]
+                val titles = taskTitles.getValue(category)
+                templates += Template(
+                    id = "act-${pet.id}-t${i + 1}",
+                    type = ItemType.TASK,
+                    petName = pet.name,
+                    title = titles[petIndex % titles.size],
+                    category = category,
+                    note = taskNotes.getValue(category),
+                    assignedTo = ownerFor(petIndex, i),
+                    recurrence = Recurrence.DAILY,
+                    reminderAmount = 15,
+                    reminderUnit = ReminderUnit.MINUTES
+                )
+            }
+            for (i in 0 until 5) {
+                val category = eventCategories[i]
+                val titles = eventTitles.getValue(category)
+                templates += Template(
+                    id = "act-${pet.id}-e${i + 1}",
+                    type = ItemType.EVENT,
+                    petName = pet.name,
+                    title = titles[petIndex % titles.size],
+                    category = category,
+                    note = eventNotes.getValue(category),
+                    assignedTo = ownerFor(petIndex, i),
+                    recurrence = Recurrence.ONCE,
+                    reminderAmount = 1,
+                    reminderUnit = ReminderUnit.HOURS
+                )
+            }
+        }
+        return templates
+    }
+
+    // The first of each kind stays with the local member, so the watch "assigned to me" view keeps content.
+    private fun ownerFor(petIndex: Int, i: Int): String =
+        if (i == 0) localMember.name else members[(petIndex + i) % members.size].name
 }
