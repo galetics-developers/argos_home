@@ -18,6 +18,10 @@ import com.example.argos_home.ui.notifications.NotificationsScreen
 import com.example.argos_home.ui.pets.PetDetailScreen
 import com.example.argos_home.ui.pets.PetForm
 import com.example.argos_home.ui.pets.PetsScreen
+import com.example.argos_home.ui.profile.ChangeEmailScreen
+import com.example.argos_home.ui.profile.ChangePasswordScreen
+import com.example.argos_home.ui.profile.EditProfileScreen
+import com.example.argos_home.ui.profile.ProfileScreen
 import java.time.LocalDate
 
 /** Sub-navigation inside the Pets tab; kept in state so no navigation dependency is needed. */
@@ -34,12 +38,21 @@ sealed interface HouseholdRoute {
     data object Transfer : HouseholdRoute
 }
 
+/** Sub-navigation inside the Profile tab: the main view and its three full-screen submodules. */
+sealed interface ProfileRoute {
+    data object Main : ProfileRoute
+    data object EditProfile : ProfileRoute
+    data object ChangePassword : ProfileRoute
+    data object ChangeEmail : ProfileRoute
+}
+
 /** Root host: switches the bottom-nav tab, the pets sub-screens and the notifications overlay by state. */
 @Composable
 fun AppRoot() {
     var tab by remember { mutableStateOf(Tab.HOME) }
     var petsRoute by remember { mutableStateOf<PetsRoute>(PetsRoute.List) }
     var householdRoute by remember { mutableStateOf<HouseholdRoute>(HouseholdRoute.Main) }
+    var profileRoute by remember { mutableStateOf<ProfileRoute>(ProfileRoute.Main) }
     var showNotifications by remember { mutableStateOf(false) }
     // Switching home only relabels: multi-home is a label in this release, so the data never changes with it.
     var activeHousehold by remember { mutableStateOf(SeedData.HOUSEHOLD_NAME) }
@@ -55,6 +68,7 @@ fun AppRoot() {
             calendarView = null
         }
         if (target == Tab.HOUSEHOLD) householdRoute = HouseholdRoute.Main
+        if (target == Tab.PROFILE) profileRoute = ProfileRoute.Main
         tab = target
     }
 
@@ -65,6 +79,9 @@ fun AppRoot() {
     }
     BackHandler(enabled = !showNotifications && tab == Tab.HOUSEHOLD && householdRoute != HouseholdRoute.Main) {
         householdRoute = HouseholdRoute.Main
+    }
+    BackHandler(enabled = !showNotifications && tab == Tab.PROFILE && profileRoute != ProfileRoute.Main) {
+        profileRoute = ProfileRoute.Main
     }
 
     when {
@@ -110,6 +127,38 @@ fun AppRoot() {
             HouseholdRoute.Invite -> InviteMemberScreen(onBack = { householdRoute = HouseholdRoute.Main })
 
             HouseholdRoute.Transfer -> TransferAdminScreen(onBack = { householdRoute = HouseholdRoute.Main })
+        }
+
+        tab == Tab.PROFILE -> when (profileRoute) {
+            ProfileRoute.Main -> ProfileScreen(
+                activeHousehold = activeHousehold,
+                onSwitchHousehold = { activeHousehold = it },
+                onEditProfile = { profileRoute = ProfileRoute.EditProfile },
+                onChangePassword = { profileRoute = ProfileRoute.ChangePassword },
+                onChangeEmail = { profileRoute = ProfileRoute.ChangeEmail },
+                onOpenNotifications = { showNotifications = true },
+                // Demo sign out: without accounts there is no login, so it just returns to Home.
+                onSignOut = {
+                    profileRoute = ProfileRoute.Main
+                    tab = Tab.HOME
+                },
+                onSelectTab = selectTab
+            )
+
+            ProfileRoute.EditProfile -> EditProfileScreen(
+                onBack = { profileRoute = ProfileRoute.Main },
+                onSaved = { profileRoute = ProfileRoute.Main }
+            )
+
+            ProfileRoute.ChangePassword -> ChangePasswordScreen(
+                onBack = { profileRoute = ProfileRoute.Main },
+                onSaved = { profileRoute = ProfileRoute.Main }
+            )
+
+            ProfileRoute.ChangeEmail -> ChangeEmailScreen(
+                onBack = { profileRoute = ProfileRoute.Main },
+                onSaved = { profileRoute = ProfileRoute.Main }
+            )
         }
 
         else -> when (val route = petsRoute) {
