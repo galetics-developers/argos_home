@@ -47,21 +47,3 @@ fun petTypeColorSoft(type: PetType): Color = when (type) {
     PetType.BIRD, PetType.FISH, PetType.AMPHIBIAN -> Tertiary100
     PetType.RABBIT, PetType.ARACHNID, PetType.OTHER -> Quaternary200
 }
-
-/** A distinct palette color per pet so avatars read apart at a glance; stable by name, cycled for unseeded pets. */
-fun petAvatarColor(petName: String): Color {
-    val index = ((petName.hashCode() % PALETTE.size) + PALETTE.size) % PALETTE.size
-    return NAMED[petName] ?: PALETTE[index]
-}
-
-private val NAMED: Map<String, Color> = mapOf(
-    "Boyka Sanchez" to Secondary500,
-    "Luna" to Primary500,
-    "Kiwi" to Quaternary900,
-    "Milo" to Tertiary600,
-    "Nina" to Info3,
-    "Coco" to Success3
-)
-
-private val PALETTE: List<Color> =
-    listOf(Secondary500, Primary500, Tertiary600, Info3, Success3, Quaternary900)
