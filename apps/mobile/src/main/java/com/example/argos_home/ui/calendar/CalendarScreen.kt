@@ -19,6 +19,7 @@ import com.example.argos_home.data.ActivityRepository
 import com.example.argos_home.domain.ActivityState
 import com.example.argos_home.domain.ScheduledActivity
 import com.example.argos_home.domain.SeedData
+import com.example.argos_home.wearable.WatchNotifier
 import java.time.LocalDate
 
 /** The three calendar views; the enum order is also the order of the selector tabs. */
@@ -49,11 +50,13 @@ fun CalendarScreen(
 
     // The card offers only legal transitions, so the chosen target travels straight to the store, which validates again.
     val onAction: (ScheduledActivity, ActivityState) -> Unit = { activity, target ->
-        ActivityRepository.applyTransition(
+        val result = ActivityRepository.applyTransition(
             id = activity.id,
             target = target,
             resolvedAtMillis = System.currentTimeMillis()
         )
+        // The phone owns the state, so it pushes the new state to the watch, which cannot discover the change otherwise.
+        WatchNotifier.notifyStateChanged(result)
     }
 
     Scaffold(

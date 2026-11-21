@@ -11,6 +11,7 @@ import com.example.argos_home.protocol.MessageCodec
 import com.example.argos_home.ui.AppRoot
 import com.example.argos_home.ui.theme.Argos_homeTheme
 import com.example.argos_home.wearable.ActivityResultSender
+import com.example.argos_home.wearable.WatchNotifier
 import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.Wearable
@@ -28,6 +29,8 @@ class MainActivity : ComponentActivity(), MessageClient.OnMessageReceivedListene
         enableEdgeToEdge()
         messageClient = Wearable.getMessageClient(this)
         resultSender = ActivityResultSender(messageClient)
+        // Lets a change made on the phone screen reach the watch, not only the watch-initiated round-trip.
+        WatchNotifier.attach(this)
         setContent {
             Argos_homeTheme {
                 AppRoot()

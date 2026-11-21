@@ -158,14 +158,14 @@ private fun specOf(target: ActivityState): Pair<Int, Color> = when (target) {
     ActivityState.PENDING -> R.string.action_done to Success1
 }
 
-/** A circular pet avatar in the pet's own palette color, so pets read apart across the list. */
+/** A circular pet avatar filled with its pet-type color and a white glyph, matching the Home pet cards. */
 @Composable
 private fun PetAvatar(petName: String, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .size(28.dp)
             .clip(CircleShape)
-            .background(petAvatarColor(petName)),
+            .background(petTypeColor(SeedData.petTypeOf(petName))),
         contentAlignment = Alignment.Center
     ) {
         Icon(
