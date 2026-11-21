@@ -117,6 +117,23 @@ object HomeStore {
         pendingActivityId = null
     }
 
+    // A change made on the phone, not asked for here: it syncs the state silently, with no outcome screen to show.
+    /** Applies a phone-originated state change without touching the in-flight guard or the last result. */
+    fun applyRemoteState(result: ActivityResult) {
+        val index = mutableActivities.indexOfFirst { it.id == result.activityId }
+        if (index < 0) {
+            // The phone changed an activity this watch is not showing (not the local member's): nothing to write.
+            Log.d(TAG, "Remote state for unknown local activity ${result.activityId}")
+            return
+        }
+        val current = mutableActivities[index]
+        mutableActivities[index] = current.copy(
+            state = result.resultingState,
+            resolvedBy = result.actorName ?: current.resolvedBy,
+            resolvedAtMillis = result.resolvedAtMillis ?: current.resolvedAtMillis
+        )
+    }
+
     /** Records a send failure; the displayed state is untouched, since nothing was decided. */
     fun reportFailure(failure: SendFailure) {
         lastError = failure
