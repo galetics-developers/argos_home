@@ -73,7 +73,12 @@ class MainActivity : ComponentActivity(), MessageClient.OnMessageReceivedListene
 
         // The callback arrives on a Data Layer background thread, so state is mutated inside lifecycleScope.
         lifecycleScope.launch {
-            HomeStore.applyResult(result)
+            // A result for the request in flight shows its outcome; an unsolicited phone push only syncs the state.
+            if (HomeStore.awaitingResult && HomeStore.pendingActivityId == result.activityId) {
+                HomeStore.applyResult(result)
+            } else {
+                HomeStore.applyRemoteState(result)
+            }
         }
     }
 
