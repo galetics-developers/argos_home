@@ -50,11 +50,13 @@ fun CalendarScreen(
 
     // The card offers only legal transitions, so the chosen target travels straight to the store, which validates again.
     val onAction: (ScheduledActivity, ActivityState) -> Unit = { activity, target ->
-        ActivityRepository.applyTransition(
+        val result = ActivityRepository.applyTransition(
             id = activity.id,
             target = target,
             resolvedAtMillis = System.currentTimeMillis()
         )
+        // The phone owns the state, so it pushes the new state to the watch, which cannot discover the change otherwise.
+        WatchNotifier.notifyStateChanged(result)
     }
 
     Scaffold(
