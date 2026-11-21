@@ -33,7 +33,10 @@ class MainActivity : ComponentActivity(), MessageClient.OnMessageReceivedListene
         messageClient = Wearable.getMessageClient(this)
         updateSender = ActivityUpdateSender(
             messageClient = messageClient,
-            nodeResolver = PhoneNodeResolver(Wearable.getCapabilityClient(this))
+            nodeResolver = PhoneNodeResolver(
+                capabilityClient = Wearable.getCapabilityClient(this),
+                nodeClient = Wearable.getNodeClient(this)
+            )
         )
 
         setContent {
