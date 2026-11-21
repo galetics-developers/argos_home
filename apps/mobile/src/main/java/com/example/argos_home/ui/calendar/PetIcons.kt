@@ -4,14 +4,12 @@ import androidx.annotation.DrawableRes
 import androidx.compose.ui.graphics.Color
 import com.example.argos_home.R
 import com.example.argos_home.domain.PetType
-import com.example.argos_home.ui.theme.Info3
 import com.example.argos_home.ui.theme.Primary100
 import com.example.argos_home.ui.theme.Primary500
 import com.example.argos_home.ui.theme.Quaternary200
 import com.example.argos_home.ui.theme.Quaternary900
 import com.example.argos_home.ui.theme.Secondary100
 import com.example.argos_home.ui.theme.Secondary500
-import com.example.argos_home.ui.theme.Success3
 import com.example.argos_home.ui.theme.Tertiary100
 import com.example.argos_home.ui.theme.Tertiary600
 
