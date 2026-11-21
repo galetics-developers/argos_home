@@ -19,6 +19,7 @@ import com.example.argos_home.data.ActivityRepository
 import com.example.argos_home.domain.ActivityState
 import com.example.argos_home.domain.ScheduledActivity
 import com.example.argos_home.domain.SeedData
+import com.example.argos_home.wearable.WatchNotifier
 import java.time.LocalDate
 
 /** The three calendar views; the enum order is also the order of the selector tabs. */
