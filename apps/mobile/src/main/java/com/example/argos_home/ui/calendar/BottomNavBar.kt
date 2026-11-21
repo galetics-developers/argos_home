@@ -27,7 +27,7 @@ enum class Tab(@DrawableRes val iconRes: Int, @StringRes val labelRes: Int, val 
     HOME(R.drawable.ic_nav_home, R.string.nav_home, true),
     PETS(R.drawable.ic_nav_pets, R.string.nav_pets, true),
     CALENDAR(R.drawable.ic_nav_calendar, R.string.nav_calendar, true),
-    HOUSEHOLD(R.drawable.ic_nav_household, R.string.nav_household, false),
+    HOUSEHOLD(R.drawable.ic_nav_household, R.string.nav_household, true),
     PROFILE(R.drawable.ic_nav_profile, R.string.nav_profile, false)
 }
 

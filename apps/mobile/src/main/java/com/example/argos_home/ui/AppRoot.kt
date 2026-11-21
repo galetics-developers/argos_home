@@ -8,8 +8,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.argos_home.domain.SeedData
 import com.example.argos_home.ui.calendar.CalendarScreen
+import com.example.argos_home.ui.calendar.CalendarView
 import com.example.argos_home.ui.calendar.Tab
 import com.example.argos_home.ui.home.HomeScreen
+import com.example.argos_home.ui.household.HouseholdScreen
+import com.example.argos_home.ui.household.InviteMemberScreen
+import com.example.argos_home.ui.household.TransferAdminScreen
 import com.example.argos_home.ui.notifications.NotificationsScreen
 import com.example.argos_home.ui.pets.PetDetailScreen
 import com.example.argos_home.ui.pets.PetForm
@@ -23,27 +27,44 @@ sealed interface PetsRoute {
     data class Form(val petId: String?) : PetsRoute
 }
 
+/** Sub-navigation inside the Household tab: the main view and its two full-screen submodules. */
+sealed interface HouseholdRoute {
+    data object Main : HouseholdRoute
+    data object Invite : HouseholdRoute
+    data object Transfer : HouseholdRoute
+}
+
 /** Root host: switches the bottom-nav tab, the pets sub-screens and the notifications overlay by state. */
 @Composable
 fun AppRoot() {
     var tab by remember { mutableStateOf(Tab.HOME) }
     var petsRoute by remember { mutableStateOf<PetsRoute>(PetsRoute.List) }
+    var householdRoute by remember { mutableStateOf<HouseholdRoute>(HouseholdRoute.Main) }
     var showNotifications by remember { mutableStateOf(false) }
     // Switching home only relabels: multi-home is a label in this release, so the data never changes with it.
     var activeHousehold by remember { mutableStateOf(SeedData.HOUSEHOLD_NAME) }
     // Date the calendar opens on when reached from a Home activity card; a plain tab switch clears it to today.
     var calendarDate by remember { mutableStateOf<LocalDate?>(null) }
+    // View the calendar opens in; set to Month when reached from Household's "View schedule", else its default.
+    var calendarView by remember { mutableStateOf<CalendarView?>(null) }
 
-    // Shared bottom-nav handler: reaching the calendar by nav resets it to today, not a date opened from Home.
+    // Shared bottom-nav handler: Calendar resets to today's default view, Household returns to its main view.
     val selectTab: (Tab) -> Unit = { target ->
-        if (target == Tab.CALENDAR) calendarDate = null
+        if (target == Tab.CALENDAR) {
+            calendarDate = null
+            calendarView = null
+        }
+        if (target == Tab.HOUSEHOLD) householdRoute = HouseholdRoute.Main
         tab = target
     }
 
-    // System back closes the overlay first, then walks the pets sub-screens back to the list.
+    // System back closes the overlay first, then walks the pets and household sub-screens back.
     BackHandler(enabled = showNotifications) { showNotifications = false }
     BackHandler(enabled = !showNotifications && tab == Tab.PETS && petsRoute !is PetsRoute.List) {
         petsRoute = backFrom(petsRoute)
+    }
+    BackHandler(enabled = !showNotifications && tab == Tab.HOUSEHOLD && householdRoute != HouseholdRoute.Main) {
+        householdRoute = HouseholdRoute.Main
     }
 
     when {
@@ -69,8 +90,27 @@ fun AppRoot() {
         tab == Tab.CALENDAR -> CalendarScreen(
             onOpenNotifications = { showNotifications = true },
             onSelectTab = selectTab,
-            initialDate = calendarDate
+            initialDate = calendarDate,
+            initialView = calendarView
         )
+
+        tab == Tab.HOUSEHOLD -> when (householdRoute) {
+            HouseholdRoute.Main -> HouseholdScreen(
+                onOpenInvite = { householdRoute = HouseholdRoute.Invite },
+                onOpenTransfer = { householdRoute = HouseholdRoute.Transfer },
+                // View schedule opens the calendar's Month view.
+                onViewSchedule = {
+                    calendarDate = null
+                    calendarView = CalendarView.MONTH
+                    tab = Tab.CALENDAR
+                },
+                onSelectTab = selectTab
+            )
+
+            HouseholdRoute.Invite -> InviteMemberScreen(onBack = { householdRoute = HouseholdRoute.Main })
+
+            HouseholdRoute.Transfer -> TransferAdminScreen(onBack = { householdRoute = HouseholdRoute.Main })
+        }
 
         else -> when (val route = petsRoute) {
             PetsRoute.List -> PetsScreen(

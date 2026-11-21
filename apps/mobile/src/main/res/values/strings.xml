@@ -199,4 +199,59 @@
     <string name="home_active_household">Active household</string>
     <string name="home_create_or_join">Create or join household</string>
     <string name="close">Close</string>
+
+    <!-- Household - main -->
+    <string name="household_title">Household</string>
+    <string name="household_members_limit">%1$d/%2$d members</string>
+    <string name="role_admin">Admin</string>
+    <string name="role_member">member</string>
+    <string name="you_label">(you)</string>
+    <string name="members_section">Members</string>
+    <string name="admin_tools">Admin tools</string>
+    <string name="members_tools">Members tools</string>
+    <string name="tool_transfer_title">Transfer admin rights</string>
+    <string name="tool_transfer_subtitle">Hand control to another member</string>
+    <string name="tool_invite_title">Invite new member</string>
+    <string name="tool_invite_subtitle">Share code, QR, or link</string>
+    <string name="leave_household">Leave household</string>
+    <string name="invite_member">Invite member</string>
+    <string name="view_schedule">View schedule</string>
+    <string name="remove_member">Remove member</string>
+
+    <!-- Household - remove member dialog -->
+    <string name="remove_member_title">Remove %1$s?</string>
+    <string name="remove_member_message">%1$s will lose access to %2$s. This can\'t be undone.</string>
+    <string name="action_remove">Remove</string>
+
+    <!-- Household - leave dialog -->
+    <string name="leave_household_title">Leave %1$s?</string>
+    <string name="leave_household_message">As the admin, transfer administration before leaving if others remain.</string>
+    <string name="action_leave">Leave</string>
+
+    <!-- Household - invite member -->
+    <string name="invite_member_title">Invite member</string>
+    <string name="tab_qr_code">QR code and digit code</string>
+    <string name="tab_by_email">By email</string>
+    <string name="scan_to_join">Scan to join %1$s</string>
+    <string name="six_digit_code">6-DIGIT CODE</string>
+    <string name="expires_in">Expires in %1$s</string>
+    <string name="share_invite_link">Share invite link</string>
+    <string name="pending_invitations">Pending invitations</string>
+    <string name="invite_status_pending">Pending</string>
+    <string name="remove_invitation">Remove invitation</string>
+    <string name="email_label">Email</string>
+    <string name="email_hint">name@example.com</string>
+    <string name="send_invitation">Send invitation</string>
+    <string name="qr_code_description">Invitation QR code</string>
+
+    <!-- Household - transfer administration -->
+    <string name="transfer_admin_title">Transfer administration</string>
+    <string name="transfer_info">The new admin gains full control. You\'ll become a regular member. Your password is required to confirm.</string>
+    <string name="transfer_administration">Transfer administration</string>
+    <string name="confirm_transfer_title">Confirm transfer</string>
+    <string name="confirm_transfer_message">Enter your password to make %1$s the administrator. You\'ll become a member.</string>
+    <string name="field_password">Your password</string>
+    <string name="password_toggle">Show or hide password</string>
+    <string name="action_transfer">Transfer</string>
+    <string name="transfer_error">Incorrect password. Please try again.</string>
 </resources>

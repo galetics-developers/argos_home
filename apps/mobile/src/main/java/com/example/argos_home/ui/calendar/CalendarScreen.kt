@@ -35,10 +35,11 @@ fun CalendarScreen(
     onOpenNotifications: () -> Unit,
     onSelectTab: (Tab) -> Unit,
     initialDate: LocalDate? = null,
+    initialView: CalendarView? = null,
     modifier: Modifier = Modifier
 ) {
     // Opens on the date handed in (e.g. from a Home activity card), otherwise on today; Day is the default view.
-    var view by rememberSaveable { mutableStateOf(CalendarView.DAY) }
+    var view by rememberSaveable { mutableStateOf(initialView ?: CalendarView.DAY) }
     var selectedDate by rememberSaveable { mutableStateOf((initialDate ?: LocalDate.now()).toEpochDay()) }
     var petFilter by rememberSaveable { mutableStateOf<String?>(null) }
     var showNewActivity by remember { mutableStateOf(false) }
