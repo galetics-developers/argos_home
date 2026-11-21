@@ -254,4 +254,54 @@
     <string name="password_toggle">Show or hide password</string>
     <string name="action_transfer">Transfer</string>
     <string name="transfer_error">Incorrect password. Please try again.</string>
+
+    <!-- Profile - main -->
+    <string name="profile_title">Profile</string>
+    <string name="edit_profile">Edit profile</string>
+    <string name="change_photo">Change photo</string>
+    <string name="profile_stat_households">Households</string>
+    <string name="profile_stat_pets">Pets</string>
+    <string name="profile_stat_role">Role</string>
+    <string name="account_settings">Account settings</string>
+    <string name="setting_edit_profile_title">Edit profile</string>
+    <string name="setting_edit_profile_subtitle">Name, email, photo</string>
+    <string name="setting_change_password_title">Change password</string>
+    <string name="setting_change_email_title">Change email</string>
+    <string name="setting_credentials_subtitle">Update your credentials</string>
+    <string name="my_households">My households</string>
+    <string name="households_count">%1$d/%2$d</string>
+    <string name="profile_members_role">%1$d members · %2$s</string>
+    <string name="household_active">Active</string>
+    <string name="create_or_join_household">Create or join household</string>
+    <string name="sign_out">Sign out</string>
+
+    <!-- Profile - sign out dialog -->
+    <string name="sign_out_title">Sign out?</string>
+    <string name="sign_out_message">You\'ll need to sign in again to manage your households.</string>
+
+    <!-- Profile - edit profile -->
+    <string name="field_names">Name(s)</string>
+    <string name="field_last_names">Last name(s)</string>
+    <string name="field_birth_date">Birth date</string>
+    <string name="field_phone">Phone number</string>
+    <string name="hint_names">Enter your name(s)</string>
+    <string name="hint_last_names">Enter your last name(s)</string>
+    <string name="hint_birth_date">Select your birth date</string>
+    <string name="hint_phone">000 000 0000</string>
+
+    <!-- Profile - change password -->
+    <string name="field_current_password">Current password</string>
+    <string name="field_new_password">New password</string>
+    <string name="field_confirm_password">Confirm new password</string>
+    <string name="hint_current_password">Enter your current password</string>
+    <string name="hint_new_password">Enter your new password</string>
+    <string name="hint_confirm_password">Re-enter your new password</string>
+    <string name="error_current_password">Incorrect current password.</string>
+    <string name="error_new_password">Enter a stronger password.</string>
+    <string name="error_password_mismatch">Passwords do not match.</string>
+    <string name="action_update">Update</string>
+
+    <!-- Profile - change email -->
+    <string name="field_new_email">New email</string>
+    <string name="error_email_generic">Enter a valid email.</string>
 </resources>
